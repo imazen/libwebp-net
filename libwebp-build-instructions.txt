@@ -1,0 +1,14 @@
+Build instructions for libwebp.dll 
+
+Download libwebp source via git or through http download.
+
+In Start Menu, run Visual Studio Tools>Command Prompt.
+
+change to the libwebp directory and run 
+
+nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output
+
+Repeat with the
+x64 Cross Compiler Command Prompt
+
+Copy to x86 and x64 directories from /output/
