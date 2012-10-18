@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace Imazen.WebP.Extern {
-    public class WebPConstants {
+    public partial class NativeMethods {
 
         /// WEBP_DECODER_ABI_VERSION -> 0x0200
         public const int WEBP_DECODER_ABI_VERSION = 512;

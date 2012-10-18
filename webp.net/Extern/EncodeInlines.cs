@@ -13,8 +13,8 @@ namespace Imazen.WebP.Extern {
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public int WebPConfigInit(ref WebPConfig config){
-            return NativeMethods.WebPConfigInitInternal(ref config,WebPPreset.WEBP_PRESET_DEFAULT, 75.0f, WebPConstants.WEBP_ENCODER_ABI_VERSION);
+        public static int WebPConfigInit(ref WebPConfig config) {
+            return NativeMethods.WebPConfigInitInternal(ref config,WebPPreset.WEBP_PRESET_DEFAULT, 75.0f, WEBP_ENCODER_ABI_VERSION);
         }
 
         /// <summary>
@@ -26,8 +26,8 @@ namespace Imazen.WebP.Extern {
         /// <param name="preset"></param>
         /// <param name="quality"></param>
         /// <returns></returns>
-        public int WebPConfigPreset(ref WebPConfig config, WebPPreset preset, float quality){
-             return NativeMethods.WebPConfigInitInternal(ref config, preset, quality, WebPConstants.WEBP_ENCODER_ABI_VERSION);
+        public static int WebPConfigPreset(ref WebPConfig config, WebPPreset preset, float quality) {
+             return NativeMethods.WebPConfigInitInternal(ref config, preset, quality, WEBP_ENCODER_ABI_VERSION);
         }
 
         /// <summary>
@@ -38,9 +38,9 @@ namespace Imazen.WebP.Extern {
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public int WebPPictureInit(ref WebPPicture picture) {
+        public static int WebPPictureInit(ref WebPPicture picture) {
 
-            return NativeMethods.WebPPictureInitInternal(ref picture, WebPConstants.WEBP_ENCODER_ABI_VERSION);
+            return NativeMethods.WebPPictureInitInternal(ref picture, WEBP_ENCODER_ABI_VERSION);
 
         }
     }

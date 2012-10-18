@@ -179,31 +179,49 @@ namespace Imazen.WebP.Extern {
     public struct WebPIDecoder {
     }
 
+
+    /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct WebPBitstreamFeatures {
 
-        /// int
+        /// <summary>
+        /// Width in pixels, as read from the bitstream
+        /// </summary>
         public int width;
 
-        /// int
+        /// <summary>
+        /// Height in pixels, as read from the bitstream.
+        /// </summary>
         public int height;
 
-        /// int
+        /// <summary>
+        /// // True if the bitstream contains an alpha channel.
+        /// </summary>
         public int has_alpha;
 
-        /// int
+        /// <summary>
+        /// Unused for now - should be 0
+        /// </summary>
         public int bitstream_version;
 
-        /// int
+        /// <summary>
+        /// If true, incremental decoding is not reccomended
+        /// </summary>
         public int no_incremental_decoding;
 
-        /// int
+        /// <summary>
+        /// Unused, should be 0 for now
+        /// </summary>
         public int rotate;
 
-        /// int
+        /// <summary>
+        /// Unused, should be 0 for now
+        /// </summary>
         public int uv_sampling;
 
-        /// uint32_t[3]
+        /// <summary>
+        /// Padding for later use
+        /// </summary>
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3, ArraySubType = UnmanagedType.U4)]
         public uint[] pad;
     }
@@ -275,11 +293,19 @@ namespace Imazen.WebP.Extern {
         public static extern int WebPGetDecoderVersion();
 
 
-        /// Return Type: int
-        ///data: uint8_t*
-        ///data_size: size_t->unsigned int
-        ///width: int*
-        ///height: int*
+        
+        
+        /// <summary>
+        /// Retrieve basic header information: width, height.
+        /// This function will also validate the header and return 0 in
+        /// case of formatting error.
+        /// Pointers 'width' and 'height' can be passed NULL if deemed irrelevant.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="data_size"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPGetInfo")]
         public static extern int WebPGetInfo([InAttribute()] IntPtr data, [MarshalAsAttribute(UnmanagedType.SysUInt)] uint data_size, ref int width, ref int height);
 
