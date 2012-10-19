@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Drawing;
@@ -18,16 +17,16 @@ namespace Imazen.WebP {
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="quality"></param>
-        public void Encode(Bitmap from, Stream to, float quality) {
+        public void Encode(Bitmap from, Stream to, float quality, bool noAlpha = false) {
             IntPtr result;
             long length;
 
-            Encode(from, quality, out result, out length);
+            Encode(from, quality, noAlpha, out result, out length);
             try {
                 byte[] buffer = new byte[4096];
                 for (int i = 0; i < length; i += buffer.Length) {
                     int used = (int)Math.Min((int)buffer.Length, length - i);
-                    Marshal.Copy(result, buffer, i, used);
+                    Marshal.Copy((IntPtr)((long)result + i), buffer, 0, used);
                     to.Write(buffer, 0, used);
                 }
             } finally {
@@ -36,7 +35,7 @@ namespace Imazen.WebP {
 
         }
 
-        public void Encode(Bitmap b, float quality, out IntPtr result, out long length) {
+        public void Encode(Bitmap b, float quality, bool noAlpha, out IntPtr result, out long length) {
             if (quality < -1) quality = -1;
             if (quality > 100) quality = 100;
             int w = b.Width;
@@ -44,12 +43,13 @@ namespace Imazen.WebP {
             var bd = b.LockBits(new Rectangle(0, 0, w, h), System.Drawing.Imaging.ImageLockMode.ReadOnly, b.PixelFormat);
             try {
                 result = IntPtr.Zero;
-                if (b.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb){
-                    if (quality == -1) length = NativeMethods.WebPEncodeLosslessBGRA(bd.Scan0, w, h, bd.Stride, ref result);
-                    else length = NativeMethods.WebPEncodeBGRA(bd.Scan0, w, h, bd.Stride, quality, ref result);
-                }else if (b.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppRgb){
-                    if (quality == -1) length = NativeMethods.WebPEncodeLosslessBGRA(bd.Scan0, w, h, bd.Stride, ref result);
-                    else length = NativeMethods.WebPEncodeBGRA(bd.Scan0, w, h, bd.Stride, quality, ref result);
+
+                if (b.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb && !noAlpha){
+                    if (quality == -1) length = (long)NativeMethods.WebPEncodeLosslessBGRA(bd.Scan0, w, h, bd.Stride, ref result);
+                    else length = (long)NativeMethods.WebPEncodeBGRA(bd.Scan0, w, h, bd.Stride, quality, ref result);
+                }else if (b.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppRgb || (b.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb && noAlpha)){
+                    if (quality == -1) length = (long)NativeMethods.WebPEncodeLosslessBGR(bd.Scan0, w, h, bd.Stride, ref result);
+                    else length = (long)NativeMethods.WebPEncodeBGR(bd.Scan0, w, h, bd.Stride, quality, ref result);
                 }else{
                     throw new NotSupportedException("Only Format32bppArgb and Format32bppRgb bitmaps are supported");
                 }

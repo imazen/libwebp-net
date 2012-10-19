@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Drawing;
 using Imazen.WebP.Extern;
@@ -25,7 +24,7 @@ namespace Imazen.WebP {
         public  Bitmap DecodeFromPointer(IntPtr data, long length) {
             int w = 0, h = 0;
             //Validate header and determine size
-            if (NativeMethods.WebPGetInfo(data, (uint)length, ref w, ref h) == 0) throw new Exception("Invalid WebP header detected");
+            if (NativeMethods.WebPGetInfo(data, (UIntPtr)length, ref w, ref h) == 0) throw new Exception("Invalid WebP header detected");
 
             bool success = false;
             Bitmap b = null;
@@ -36,7 +35,7 @@ namespace Imazen.WebP {
                 //Lock surface for writing
                 bd = b.LockBits(new Rectangle(0, 0, w, h), System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 //Decode to surface
-                IntPtr result =  NativeMethods.WebPDecodeBGRAInto(data, (uint)length, bd.Scan0, (uint)( bd.Stride * bd.Height), bd.Stride);
+                IntPtr result =  NativeMethods.WebPDecodeBGRAInto(data, (UIntPtr)length, bd.Scan0, (UIntPtr)( bd.Stride * bd.Height), bd.Stride);
                 if (bd.Scan0 != result) throw new Exception("Failed to decode WebP image with error " + (long)result);
                 success = true;
             } finally {
