@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
@@ -171,20 +170,19 @@ namespace Imazen.WebP.Extern {
     ///data: uint8_t*
     ///data_size: size_t->unsigned int
     ///picture: WebPPicture*
-    public delegate int WebPWriterFunction([InAttribute()] IntPtr data, IntPtr data_size, ref WebPPicture picture);
+    public delegate int WebPWriterFunction([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPPicture picture);
 
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct WebPMemoryWriter {
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string mem;
+        public IntPtr mem;
 
         /// size_t->unsigned int
-        public uint size;
+        public UIntPtr size;
 
         /// size_t->unsigned int
-        public uint max_size;
+        public UIntPtr max_size;
 
         /// uint32_t[1]
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 1, ArraySubType = UnmanagedType.U4)]
@@ -273,16 +271,13 @@ namespace Imazen.WebP.Extern {
         public int height;
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string y;
+        public IntPtr y;
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string u;
+        public IntPtr u;
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string v;
+        public IntPtr v;
 
         /// int
         public int y_stride;
@@ -291,8 +286,7 @@ namespace Imazen.WebP.Extern {
         public int uv_stride;
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string a;
+        public IntPtr a;
 
         /// int
         public int a_stride;
@@ -321,8 +315,7 @@ namespace Imazen.WebP.Extern {
         public int extra_info_type;
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string extra_info;
+        public IntPtr extra_info;
 
         /// WebPAuxStats*
         public IntPtr stats;
@@ -341,12 +334,10 @@ namespace Imazen.WebP.Extern {
         public uint[] pad3;
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string u0;
+        public IntPtr u0;
 
         /// uint8_t*
-        [MarshalAsAttribute(UnmanagedType.LPStr)]
-        public string v0;
+        public IntPtr v0;
 
         /// int
         public int uv0_stride;
@@ -381,8 +372,7 @@ namespace Imazen.WebP.Extern {
         ///quality_factor: float
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeRGB")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeRGB([InAttribute()] IntPtr rgb, int width, int height, int stride, float quality_factor, ref IntPtr output);
+        public static extern UIntPtr WebPEncodeRGB([InAttribute()] IntPtr rgb, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
         /// Return Type: size_t->unsigned int
@@ -393,8 +383,7 @@ namespace Imazen.WebP.Extern {
         ///quality_factor: float
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeBGR")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeBGR([InAttribute()] IntPtr bgr, int width, int height, int stride, float quality_factor, ref IntPtr output);
+        public static extern UIntPtr WebPEncodeBGR([InAttribute()] IntPtr bgr, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
         /// Return Type: size_t->unsigned int
@@ -405,8 +394,7 @@ namespace Imazen.WebP.Extern {
         ///quality_factor: float
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeRGBA")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeRGBA([InAttribute()] IntPtr rgba, int width, int height, int stride, float quality_factor, ref IntPtr output);
+        public static extern UIntPtr WebPEncodeRGBA([InAttribute()] IntPtr rgba, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
         /// Return Type: size_t->unsigned int
@@ -417,8 +405,7 @@ namespace Imazen.WebP.Extern {
         ///quality_factor: float
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeBGRA")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeBGRA([InAttribute()] IntPtr bgra, int width, int height, int stride, float quality_factor, ref IntPtr output);
+        public static extern IntPtr WebPEncodeBGRA([InAttribute()] IntPtr bgra, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
         /// Return Type: size_t->unsigned int
@@ -428,8 +415,7 @@ namespace Imazen.WebP.Extern {
         ///stride: int
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeLosslessRGB")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeLosslessRGB([InAttribute()] IntPtr rgb, int width, int height, int stride, ref IntPtr output);
+        public static extern UIntPtr WebPEncodeLosslessRGB([InAttribute()] IntPtr rgb, int width, int height, int stride, ref IntPtr output);
 
 
         /// Return Type: size_t->unsigned int
@@ -439,8 +425,7 @@ namespace Imazen.WebP.Extern {
         ///stride: int
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeLosslessBGR")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeLosslessBGR([InAttribute()] IntPtr bgr, int width, int height, int stride, ref IntPtr output);
+        public static extern UIntPtr WebPEncodeLosslessBGR([InAttribute()] IntPtr bgr, int width, int height, int stride, ref IntPtr output);
 
 
         /// Return Type: size_t->unsigned int
@@ -450,8 +435,7 @@ namespace Imazen.WebP.Extern {
         ///stride: int
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeLosslessRGBA")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeLosslessRGBA([InAttribute()] IntPtr rgba, int width, int height, int stride, ref IntPtr output);
+        public static extern UIntPtr WebPEncodeLosslessRGBA([InAttribute()] IntPtr rgba, int width, int height, int stride, ref IntPtr output);
 
 
         /// Return Type: size_t->unsigned int
@@ -461,8 +445,7 @@ namespace Imazen.WebP.Extern {
         ///stride: int
         ///output: uint8_t**
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPEncodeLosslessBGRA")]
-        [return: MarshalAsAttribute(UnmanagedType.SysUInt)]
-        public static extern uint WebPEncodeLosslessBGRA([InAttribute()] IntPtr bgra, int width, int height, int stride, ref IntPtr output);
+        public static extern UIntPtr WebPEncodeLosslessBGRA([InAttribute()] IntPtr bgra, int width, int height, int stride, ref IntPtr output);
 
 
         /// Return Type: int
@@ -491,7 +474,7 @@ namespace Imazen.WebP.Extern {
         ///data_size: size_t->unsigned int
         ///picture: WebPPicture*
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPMemoryWrite")]
-        public static extern int WebPMemoryWrite([InAttribute()] IntPtr data, [MarshalAsAttribute(UnmanagedType.SysUInt)] uint data_size, ref WebPPicture picture);
+        public static extern int WebPMemoryWrite([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPPicture picture);
 
 
         /// Return Type: int

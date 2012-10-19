@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Imazen.WebP.Extern {
@@ -59,7 +58,7 @@ namespace Imazen.WebP.Extern {
         /// <param name="data_size"></param>
         /// <param name="features"></param>
         /// <returns></returns>
-        public static VP8StatusCode WebPGetFeatures(IntPtr data, uint data_size, ref WebPBitstreamFeatures features) {
+        public static VP8StatusCode WebPGetFeatures(IntPtr data, UIntPtr data_size, ref WebPBitstreamFeatures features) {
             return NativeMethods.WebPGetFeaturesInternal(data, data_size, ref features, WEBP_DECODER_ABI_VERSION);
 
         }
