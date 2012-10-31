@@ -507,9 +507,24 @@ namespace Imazen.WebP.Extern {
         ///pic1: WebPPicture*
         ///pic2: WebPPicture*
         ///metric_type: int
-        ///result: float*
+        ///result: float* result[5]
+        ///
+     
+        /// <summary>
+        /// Compute PSNR, SSIM or LSIM distortion metric between two pictures.
+        /// Result is in dB, stores in result[] in the Y/U/V/Alpha/All order.
+        /// Returns false in case of error (src and ref don't have same dimension, ...)
+        /// Warning: this function is rather CPU-intensive.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="reference"></param>
+        /// <param name="metric_type">0 = PSNR, 1 = SSIM, 2 = LSIM</param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPPictureDistortion")]
-        public static extern int WebPPictureDistortion(ref WebPPicture pic1, ref WebPPicture pic2, int metric_type, ref float result);
+        public static extern int WebPPictureDistortion(ref WebPPicture src, ref WebPPicture reference, int metric_type, ref float result);
+
+ 
 
 
         /// Return Type: int
