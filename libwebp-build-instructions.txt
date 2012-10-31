@@ -12,3 +12,11 @@ Repeat with the
 x64 Cross Compiler Command Prompt
 
 Copy to x86 and x64 directories from /output/
+
+To verify p/invokes have not changed:
+
+Review the following history logs for changes since the last release:
+
+http://git.chromium.org/gitweb/?p=webm/libwebp.git;a=history;f=src/webp/types.h;hb=HEAD
+http://git.chromium.org/gitweb/?p=webm/libwebp.git;a=history;f=src/webp/encode.h;hb=HEAD
+http://git.chromium.org/gitweb/?p=webm/libwebp.git;a=history;f=src/webp/decode.h;hb=HEAD
