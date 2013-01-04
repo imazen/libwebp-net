@@ -1,12 +1,14 @@
 ﻿# libwebp wrapper for .NET 2.0 and higher
 
+This library is available on Nuget as [Imazen.WebP](http://nuget.org/packages/Imazen.WebP).
+
 This wrapper was created due to Noesis Innovation's abandonment of http://webp.codeplex.com/
 
-Our goals are also a bit different:
+Our goals are also a bit more ambitious:
 
-1. Offer low-level P/Invoke exposure for the full libwebp API.
-2. Be binary compatible with as-is NMake builds of libwebp (no custom C/C++)
-3. Offer a simple encode/decode API
+1. Offer low-level P/Invoke exposure for the full libwebp API (complete, partially tested).
+2. Be binary compatible with as-is NMake builds of libwebp (no custom C/C++) (complete).
+3. Offer a simple encode/decode API (complete).
 4. Offer a more detailed encode/decode API for more complex use cases (not yet completed).
 
 
