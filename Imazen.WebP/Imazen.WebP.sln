@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.WebP", "Imazen.WebP.csproj", "{92F607A3-2F04-4536-8346-B6FEF8B774FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.Webp.Test", "..\Imazen.WebP.Test\Imazen.Webp.Test.csproj", "{204C42D3-A66C-4636-BC97-E0FB9310AAAB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.Test.Webp", "..\Imazen.Test.Webp\Imazen.Test.Webp.csproj", "{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{92F607A3-2F04-4536-8346-B6FEF8B774FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92F607A3-2F04-4536-8346-B6FEF8B774FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92F607A3-2F04-4536-8346-B6FEF8B774FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{204C42D3-A66C-4636-BC97-E0FB9310AAAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{204C42D3-A66C-4636-BC97-E0FB9310AAAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{204C42D3-A66C-4636-BC97-E0FB9310AAAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{204C42D3-A66C-4636-BC97-E0FB9310AAAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

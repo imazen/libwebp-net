@@ -1,15 +1,15 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Imazen.WebP;
 using System.Drawing;
 using System.IO;
 
-namespace UnitTestProject1
+
+namespace Imazen.Test.Webp
 {
-    [TestClass]
     public class TestSimpleDecoder
     {
-        [TestMethod]
+        [Fact]
         public void TestDecSimple()
         {
 
@@ -28,20 +28,22 @@ namespace UnitTestProject1
             }
 
             FileInfo finfo = new FileInfo(outFile);
-            Assert.IsTrue(finfo.Length > 5000);
-            
+            Assert.True(finfo.Exists);
+
 
         }
-
         public static byte[] ReadFully(Stream input)
         {
+            byte[] buffer = new byte[16 * 1024];
             using (MemoryStream ms = new MemoryStream())
             {
-                input.CopyTo(ms);
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
                 return ms.ToArray();
             }
         }
     }
-
-
 }
