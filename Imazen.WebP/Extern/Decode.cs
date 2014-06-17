@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace Imazen.WebP.Extern {
-    // Warning: Ignoring Procedure WebPIsPremultipliedMode because it is defined inline.
-    // Warning: Ignoring Procedure WebPIsAlphaMode because it is defined inline.
-    // Warning: Ignoring Procedure WebPIsRGBMode because it is defined inline.
-    // Warning: Ignoring Procedure WebPInitDecBuffer because it is defined inline.
-    // Warning: Ignoring Procedure WebPIDecGetYUV because it is defined inline.
-    // Warning: Ignoring Procedure WebPGetFeatures because it is defined inline.
-    // Warning: Ignoring Procedure WebPInitDecoderConfig because it is defined inline.
+namespace Imazen.WebP.Extern
+{
 
-    public enum WEBP_CSP_MODE {
+
+    [StructLayoutAttribute(LayoutKind.Sequential)]
+    public struct WebPIDecoder { }
+
+
+
+
+
+    public enum WEBP_CSP_MODE
+    {
 
         /// MODE_RGB -> 0
         MODE_RGB = 0,
@@ -57,8 +60,17 @@ namespace Imazen.WebP.Extern {
         MODE_LAST = 13,
     }
 
+
+
+
+
+
+    //------------------------------------------------------------------------------
+    // WebPDecBuffer: Generic structure for describing the output sample buffer.
+
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPRGBABuffer {
+    public struct WebPRGBABuffer
+    {
 
         /// uint8_t*
         public IntPtr rgba;
@@ -71,7 +83,8 @@ namespace Imazen.WebP.Extern {
     }
 
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPYUVABuffer {
+    public struct WebPYUVABuffer
+    {
 
         /// uint8_t*
         public IntPtr y;
@@ -111,7 +124,8 @@ namespace Imazen.WebP.Extern {
     }
 
     [StructLayoutAttribute(LayoutKind.Explicit)]
-    public struct Anonymous_690ed5ec_4c3d_40c6_9bd0_0747b5a28b54 {
+    public struct Anonymous_690ed5ec_4c3d_40c6_9bd0_0747b5a28b54
+    {
 
         /// WebPRGBABuffer->Anonymous_47cdec86_3c1a_4b39_ab93_76bc7499076a
         [FieldOffsetAttribute(0)]
@@ -123,7 +137,8 @@ namespace Imazen.WebP.Extern {
     }
 
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPDecBuffer {
+    public struct WebPDecBuffer
+    {
 
         /// WEBP_CSP_MODE->Anonymous_cb136f5b_1d5d_49a0_aca4_656a79e9d159
         public WEBP_CSP_MODE colorspace;
@@ -148,7 +163,12 @@ namespace Imazen.WebP.Extern {
         public IntPtr private_memory;
     }
 
-    public enum VP8StatusCode {
+
+    //------------------------------------------------------------------------------
+    // Enumeration of the status codes
+
+    public enum VP8StatusCode
+    {
 
         /// VP8_STATUS_OK -> 0
         VP8_STATUS_OK = 0,
@@ -168,14 +188,28 @@ namespace Imazen.WebP.Extern {
         VP8_STATUS_NOT_ENOUGH_DATA,
     }
 
-    [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPIDecoder {
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPBitstreamFeatures {
+    public struct WebPBitstreamFeatures
+    {
 
         /// <summary>
         /// Width in pixels, as read from the bitstream
@@ -219,55 +253,35 @@ namespace Imazen.WebP.Extern {
         public uint[] pad;
     }
 
+
+
+
+    // Decoding options
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPDecoderOptions {
+    public struct WebPDecoderOptions
+    {
+        public int bypass_filtering;               // if true, skip the in-loop filtering
+        public int no_fancy_upsampling;            // if true, use faster pointwise upsampler
+        public int use_cropping;                   // if true, cropping is applied _first_
+        public int crop_left, crop_top;            // top-left position for cropping.
+        // Will be snapped to even values.
+        public int crop_width, crop_height;        // dimension of the cropping area
+        public int use_scaling;                    // if true, scaling is applied _afterward_
+        public int scaled_width, scaled_height;    // final resolution
+        public int use_threads;                    // if true, use multi-threaded decoding
+        public int dithering_strength;             // dithering strength (0=Off, 100=full)
 
-        /// int
-        public int bypass_filtering;
-
-        /// int
-        public int no_fancy_upsampling;
-
-        /// int
-        public int use_cropping;
-
-        /// int
-        public int crop_left;
-
-        /// int
-        public int crop_top;
-
-        /// int
-        public int crop_width;
-
-        /// int
-        public int crop_height;
-
-        /// int
-        public int use_scaling;
-
-        /// int
-        public int scaled_width;
-
-        /// int
-        public int scaled_height;
-
-        /// int
-        public int use_threads;
-
-        /// int
-        public int force_rotation;
-
-        /// int
-        public int no_enhancement;
-
-        /// uint32_t[6]
-        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 6, ArraySubType = UnmanagedType.U4)]
+        // Unused for now:
+        public int force_rotation;                 // forced rotation (to be applied _last_)
+        public int no_enhancement;                 // if true, discard enhancement layer
+        /// uint32_t[5]
+        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.U4)]
         public uint[] pad;
-    }
+    };
 
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPDecoderConfig {
+    public struct WebPDecoderConfig
+    {
 
         /// WebPBitstreamFeatures->Anonymous_c6b01f0b_3e38_4731_b2d6_9c0e3bdb71aa
         public WebPBitstreamFeatures input;
@@ -279,15 +293,17 @@ namespace Imazen.WebP.Extern {
         public WebPDecoderOptions options;
     }
 
-    public partial class NativeMethods {
+
+    public partial class NativeMethods
+    {
 
         /// Return Type: int
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPGetDecoderVersion")]
         public static extern int WebPGetDecoderVersion();
 
 
-        
-        
+
+
         /// <summary>
         /// Retrieve basic header information: width, height.
         /// This function will also validate the header and return 0 in
@@ -300,7 +316,7 @@ namespace Imazen.WebP.Extern {
         /// <param name="height"></param>
         /// <returns></returns>
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPGetInfo")]
-        public static extern int WebPGetInfo([InAttribute()] IntPtr data,  UIntPtr data_size, ref int width, ref int height);
+        public static extern int WebPGetInfo([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
         /// Return Type: uint8_t*
@@ -327,7 +343,7 @@ namespace Imazen.WebP.Extern {
         ///width: int*
         ///height: int*
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeBGRA")]
-        public static extern IntPtr WebPDecodeBGRA([InAttribute()] IntPtr data, UIntPtr  data_size, ref int width, ref int height);
+        public static extern IntPtr WebPDecodeBGRA([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
         /// Return Type: uint8_t*
@@ -424,7 +440,7 @@ namespace Imazen.WebP.Extern {
         ///v_size: size_t->unsigned int
         ///v_stride: int
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeYUVInto")]
-        public static extern IntPtr WebPDecodeYUVInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr luma, UIntPtr luma_size, int luma_stride, IntPtr u, UIntPtr  u_size, int u_stride, IntPtr v, UIntPtr v_size, int v_stride);
+        public static extern IntPtr WebPDecodeYUVInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr luma, UIntPtr luma_size, int luma_stride, IntPtr u, UIntPtr u_size, int u_stride, IntPtr v, UIntPtr v_size, int v_stride);
 
 
         /// Return Type: int
@@ -575,4 +591,6 @@ namespace Imazen.WebP.Extern {
         public static extern VP8StatusCode WebPDecode([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPDecoderConfig config);
 
     }
+
+
 }

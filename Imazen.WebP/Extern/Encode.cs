@@ -4,8 +4,11 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 
-namespace Imazen.WebP.Extern {
-    public enum WebPImageHint {
+namespace Imazen.WebP.Extern
+{
+
+    public enum WebPImageHint
+    {
 
         /// WEBP_HINT_DEFAULT -> 0
         WEBP_HINT_DEFAULT = 0,
@@ -20,7 +23,8 @@ namespace Imazen.WebP.Extern {
     }
 
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPConfig {
+    public struct WebPConfig
+    {
 
         /// int
         public int lossless;
@@ -82,12 +86,19 @@ namespace Imazen.WebP.Extern {
         /// int
         public int partition_limit;
 
-        /// uint32_t[8]
-        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8, ArraySubType = UnmanagedType.U4)]
+        public int emulate_jpeg_size;
+
+        public int thread_level;
+
+        public int low_memory;
+
+        /// uint32_t[5]
+        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.U4)]
         public uint[] pad;
     }
 
-    public enum WebPPreset {
+    public enum WebPPreset
+    {
 
         /// WEBP_PRESET_DEFAULT -> 0
         WEBP_PRESET_DEFAULT = 0,
@@ -103,8 +114,14 @@ namespace Imazen.WebP.Extern {
         WEBP_PRESET_TEXT,
     }
 
+
+
+
+
+
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPAuxStats {
+    public struct WebPAuxStats
+    {
 
         /// int
         public int coded_size;
@@ -166,6 +183,7 @@ namespace Imazen.WebP.Extern {
         public uint[] pad;
     }
 
+
     /// Return Type: int
     ///data: uint8_t*
     ///data_size: size_t->unsigned int
@@ -173,7 +191,8 @@ namespace Imazen.WebP.Extern {
     public delegate int WebPWriterFunction([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPPicture picture);
 
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPMemoryWriter {
+    public struct WebPMemoryWriter
+    {
 
         /// uint8_t*
         public IntPtr mem;
@@ -189,12 +208,15 @@ namespace Imazen.WebP.Extern {
         public uint[] pad;
     }
 
+
+
     /// Return Type: int
     ///percent: int
     ///picture: WebPPicture*
     public delegate int WebPProgressHook(int percent, ref WebPPicture picture);
 
-    public enum WebPEncCSP {
+    public enum WebPEncCSP
+    {
 
         /// WEBP_YUV420 -> 0
         WEBP_YUV420 = 0,
@@ -227,7 +249,9 @@ namespace Imazen.WebP.Extern {
         WEBP_CSP_ALPHA_BIT = 4,
     }
 
-    public enum WebPEncodingError {
+
+    public enum WebPEncodingError
+    {
 
         /// VP8_ENC_OK -> 0
         VP8_ENC_OK = 0,
@@ -255,8 +279,11 @@ namespace Imazen.WebP.Extern {
         VP8_ENC_ERROR_LAST,
     }
 
+
+
     [StructLayoutAttribute(LayoutKind.Sequential)]
-    public struct WebPPicture {
+    public struct WebPPicture
+    {
 
         /// int
         public int use_argb;
@@ -357,7 +384,9 @@ namespace Imazen.WebP.Extern {
         public IntPtr[] pad5;
     }
 
-    public partial class NativeMethods {
+
+    public partial class NativeMethods
+    {
 
         /// Return Type: int
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPGetEncoderVersion")]
@@ -509,7 +538,7 @@ namespace Imazen.WebP.Extern {
         ///metric_type: int
         ///result: float* result[5]
         ///
-     
+
         /// <summary>
         /// Compute PSNR, SSIM or LSIM distortion metric between two pictures.
         /// Result is in dB, stores in result[] in the Y/U/V/Alpha/All order.
@@ -524,7 +553,7 @@ namespace Imazen.WebP.Extern {
         [DllImportAttribute("libwebp.dll", EntryPoint = "WebPPictureDistortion")]
         public static extern int WebPPictureDistortion(ref WebPPicture src, ref WebPPicture reference, int metric_type, ref float result);
 
- 
+
 
 
         /// Return Type: int
