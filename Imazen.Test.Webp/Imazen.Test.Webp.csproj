@@ -63,7 +63,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="libwebp.dll">
+    <Content Include="..\x64\libwebp.dll">
+      <Link>libwebp.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="testimage.jpg">
