@@ -1,0 +1,78 @@
+version: 0.2.0.{build}
+
+# enable patching of AssemblyInfo.* files
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "0.2.0"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+
+matrix:
+  allow_failures:
+    - platform: x86
+      configuration: Release
+    - platform: x64
+      configuration: Release
+
+clone_folder: c:\projects\libwebp-net
+
+
+# scripts that run after cloning repository
+install:
+  - cd C:\projects
+  - git clone https://chromium.googlesource.com/webm/libwebp
+  - cd libwebp 
+  - git checkout 0.4.0
+  - %comspec% /k ""C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"" amd64
+  - nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output
+  - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
+  - %comspec% /k ""C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"" x86
+  - nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output
+  - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x86\
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+# build platform, i.e. x86, x64, AnyCPU. This setting is optional.
+platform: AnyCPU
+
+# to add several platforms to build matrix:
+#platform:
+#  - x86
+#  - AnyCPU
+
+# build Configuration, i.e. Debug, Release, etc.
+configuration: Release
+
+build:
+  project: Imazen.WebP\Imazen.WebP.sln      # path to Visual Studio solution or project
+  publish_nuget: false             # package projects with .nuspec files and push to artifacts
+
+  # MSBuild verbosity level
+  verbosity: detailed
+
+
+# scripts to run before build
+before_build:
+  nuget restore
+
+# scripts to run after build
+#after_build:
+
+# to run your custom scripts instead of automatic MSBuild
+#build_script:
+
+#---------------------------------#
+#      artifacts configuration    #
+#---------------------------------#
+
+artifacts:
+
+  # pushing a single file
+  - path: C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll
+    name: libwebbp-x64.dll
+  - path: C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll
+    name: libwebbp-x86.dll
+
