@@ -1,3 +1,5 @@
+shallow_clone: true
+
 version: 0.2.0.{build}
 
 # enable patching of AssemblyInfo.* files
@@ -21,9 +23,8 @@ clone_folder: c:\projects\libwebp-net
 # scripts that run after cloning repository
 install:
   - cd C:\projects
-  - git clone https://chromium.googlesource.com/webm/libwebp 
+  - git clone https://chromium.googlesource.com/webm/libwebp --branch 0.4.0 --depth 1
   - cd C:\projects\libwebp
-  - git checkout 0.4.0
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x64"
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
@@ -57,9 +58,9 @@ build:
 # scripts to run before build
 before_build:
   - cd C:\projects\libwebp-net\Imazen.Test.WebP
-  - nuget restore
+  - nuget restore -SolutionDirectory C:\projects\libwebp-net
   - cd C:\projects\libwebp-net\Imazen.WebP
-  - nuget restore
+  - nuget restore  -SolutionDirectory C:\projects\libwebp-net
 
 # scripts to run after build
 #after_build:
