@@ -24,10 +24,10 @@ install:
   - git clone https://chromium.googlesource.com/webm/libwebp
   - cd libwebp 
   - git checkout 0.4.0
-  - %comspec% /k ""C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"" amd64
+  - "%comspec% /k \"\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\"\" amd64"
   - nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output
   - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
-  - %comspec% /k ""C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"" x86
+  - "%comspec% /k \"\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\"\" x86"
   - nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output
   - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x86\
 
