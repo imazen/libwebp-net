@@ -21,14 +21,14 @@ clone_folder: c:\projects\libwebp-net
 # scripts that run after cloning repository
 install:
   - cd C:\projects
-  - git clone https://chromium.googlesource.com/webm/libwebp
-  - cd libwebp 
+  - git clone https://chromium.googlesource.com/webm/libwebp 
   - git checkout 0.4.0
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x64"
-  - nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output
+  - cd C:\projects\libwebp
+  - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x86"
-  - nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output
+  - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x86\
 
 #---------------------------------#
