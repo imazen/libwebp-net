@@ -57,10 +57,10 @@ build:
 
 # scripts to run before build
 before_build:
-  - cd C:\projects\libwebp-net\Imazen.Test.WebP
-  - nuget restore -SolutionDirectory C:\projects\libwebp-net
+#  - cd C:\projects\libwebp-net\Imazen.Test.WebP
+#  - nuget restore Imazen.Test.WebP.-PackageDirectory C:\projects\libwebp-net\packages
   - cd C:\projects\libwebp-net\Imazen.WebP
-  - nuget restore  -SolutionDirectory C:\projects\libwebp-net
+  - nuget restore Imazen.WebP.sln -PackageDirectory C:\projects\libwebp-net\packages
 
 # scripts to run after build
 #after_build:
