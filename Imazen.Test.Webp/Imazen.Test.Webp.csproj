@@ -103,11 +103,11 @@
   <ItemGroup>
     <Content Include="..\x64\libwebp.dll">
       <Link>x64\libwebp.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\x86\libwebp.dll">
       <Link>x86\libwebp.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="testimage.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
