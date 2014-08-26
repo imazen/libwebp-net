@@ -6,3 +6,4 @@ Imazen.WebP.xml
 bin/
 obj/
 *.suo
+packages/**/*
