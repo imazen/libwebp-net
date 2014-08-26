@@ -12,6 +12,7 @@ namespace Imazen.Test.Webp
         [Fact]
         public void TestDecSimple()
         {
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
 
             var decoder = new SimpleDecoder();
             var fileName = "testimage.webp";

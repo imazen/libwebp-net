@@ -15,6 +15,8 @@ namespace UnitTestProject1
         [Fact]
         public void TestEncSimple()
         {
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
+
             var encoder = new SimpleEncoder();
             var fileName = "testimage.jpg";
             var outFileName = "testimageout.webp";

@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extern\Extra.cs" />
+    <Compile Include="Extern\LoadLibrary.cs" />
     <Compile Include="SimpleDecoder.cs" />
     <Compile Include="Extern\Constants.cs" />
     <Compile Include="Extern\Decode.cs" />
