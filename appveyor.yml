@@ -37,7 +37,10 @@ install:
 #---------------------------------#
 
 # build platform, i.e. x86, x64, AnyCPU. This setting is optional.
-platform: Any CPU
+platform: 
+  - x86
+  - x64
+  - Any CPU
 
 # to add several platforms to build matrix:
 #platform:
@@ -75,8 +78,8 @@ before_build:
 artifacts:
 
   # pushing a single file
-  - path: C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll
+  - path: output\release-dynamic\x64\bin\libwebp.dll
     name: libwebbp-x64.dll
-  - path: C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll
+  - path: output\release-dynamic\x86\bin\libwebp.dll
     name: libwebbp-x86.dll
 
