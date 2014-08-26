@@ -13,6 +13,11 @@ namespace UnitTestProject1
     public class TestSimpleEncoder
     {
         [Fact]
+        public void TestVersion(){
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
+            Assert.Equal("0.4.0",SimpleEncoder.GetEncoderVersion());
+        }
+        [Fact]
         public void TestEncSimple()
         {
             Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
