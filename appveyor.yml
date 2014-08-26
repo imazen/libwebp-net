@@ -48,7 +48,7 @@ platform: AnyCPU
 configuration: Release
 
 build:
-  project: Imazen.WebP\Imazen.WebP.sln      # path to Visual Studio solution or project
+  project: Imazen.WebP.sln      # path to Visual Studio solution or project
   publish_nuget: false             # package projects with .nuspec files and push to artifacts
 
   # MSBuild verbosity level
@@ -59,7 +59,7 @@ build:
 before_build:
 #  - cd C:\projects\libwebp-net\Imazen.Test.WebP
 #  - nuget restore Imazen.Test.WebP.-PackageDirectory C:\projects\libwebp-net\packages
-  - cd C:\projects\libwebp-net\Imazen.WebP
+  - cd C:\projects\libwebp-net
   - nuget restore Imazen.WebP.sln -PackagesDirectory C:\projects\libwebp-net\packages
 
 # scripts to run after build
