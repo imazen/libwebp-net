@@ -23,7 +23,7 @@ install:
   - cd C:\projects
   - git clone https://chromium.googlesource.com/webm/libwebp 
   - cd C:\projects\libwebp
-  - git checkout 0.4.0
+  - git checkout 0.4.1
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x64"
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
