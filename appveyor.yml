@@ -30,17 +30,17 @@ install:
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x64"
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy /Y C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
+  - appveyor PushArtifact C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x86"
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy /Y C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll C:\projects\libwebp-net\x86\
-
+  - appveyor PushArtifact C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
 
 # build platform, i.e. x86, x64, AnyCPU. This setting is optional.
 platform: 
-  - x64
   - Any CPU
 
 # to add several platforms to build matrix:
@@ -76,9 +76,11 @@ before_build:
 #      artifacts configuration    #
 #---------------------------------#
 
-artifacts:
+test_script:
+  - xunit.console.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
+  - xunit.console.x86.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
 
-  # pushing a single file
+artifacts:
   - path: output\release-dynamic\x64\bin\libwebp.dll
     name: libwebbp-x64.dll
   - path: output\release-dynamic\x86\bin\libwebp.dll
