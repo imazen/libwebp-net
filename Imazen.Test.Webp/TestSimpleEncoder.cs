@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using Imazen.WebP.Extern;
 
-namespace UnitTestProject1
+namespace Imazen.Test.WebP
 {
     public class TestSimpleEncoder
     {
