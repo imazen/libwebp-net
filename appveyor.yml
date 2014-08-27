@@ -22,15 +22,17 @@ clone_folder: c:\projects\libwebp-net
 
 # scripts that run after cloning repository
 install:
+  - del C:\projects\libwebp-net\x86\libwebp.dll
+  - del C:\projects\libwebp-net\x64\libwebp.dll
   - cd C:\projects
   - git clone https://chromium.googlesource.com/webm/libwebp --branch 0.4.0 --depth 1
   - cd C:\projects\libwebp
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x64"
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
-  - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
+  - copy /Y C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x64\
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x86"
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
-  - copy C:\projects\libwebp\output\release-dynamic\x64\bin\libwebp.dll C:\projects\libwebp-net\x86\
+  - copy /Y C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll C:\projects\libwebp-net\x86\
 
 #---------------------------------#
 #       build configuration       #
@@ -38,7 +40,6 @@ install:
 
 # build platform, i.e. x86, x64, AnyCPU. This setting is optional.
 platform: 
-  - x86
   - x64
   - Any CPU
 
@@ -55,7 +56,7 @@ build:
   publish_nuget: false             # package projects with .nuspec files and push to artifacts
 
   # MSBuild verbosity level
-  verbosity: detailed
+  verbosity: minimal
 
 
 # scripts to run before build
