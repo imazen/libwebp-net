@@ -1,3 +1,5 @@
+os: Windows Server 2012 R2
+
 shallow_clone: true
 
 version: 0.2.0.{build}
@@ -34,7 +36,7 @@ install:
   - "\"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd\" /x86"
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy /Y C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll C:\projects\libwebp-net\x86\
-  - appveyor PushArtifact C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll -FieName libwebp(x86).dll
+  - appveyor PushArtifact C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll -FileName libwebp(x86).dll
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
