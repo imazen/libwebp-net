@@ -5,3 +5,5 @@ Imazen.WebP.xml
 *.cache
 bin/
 obj/
+*.suo
+packages/**/*

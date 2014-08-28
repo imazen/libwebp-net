@@ -10,7 +10,14 @@ namespace Imazen.WebP {
     public class SimpleEncoder {
         public SimpleEncoder() { }
 
-
+        public static string GetEncoderVersion()
+        {
+            uint v = (uint)NativeMethods.WebPGetEncoderVersion();
+            var revision = v % 256;
+            var minor = (v >> 8) % 256;
+            var major = (v >> 16) % 256;
+            return major + "." + minor + "." + revision;
+        }
         /// <summary>
         /// Encodes the given RGB(A) bitmap to the given stream. Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
         /// </summary>

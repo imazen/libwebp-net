@@ -10,8 +10,15 @@ namespace Imazen.Test.Webp
     public class TestSimpleDecoder
     {
         [Fact]
+        public void TestWebPVersions()
+        {
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
+            Assert.Equal("0.4.1",SimpleDecoder.GetDecoderVersion());
+        }
+        [Fact]
         public void TestDecSimple()
         {
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
 
             var decoder = new SimpleDecoder();
             var fileName = "testimage.webp";

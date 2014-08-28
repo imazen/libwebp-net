@@ -11,6 +11,15 @@ namespace Imazen.WebP {
 
     public class SimpleDecoder {
 
+
+        public static string GetDecoderVersion()
+        {
+            uint v = (uint)NativeMethods.WebPGetDecoderVersion();
+            var revision = v % 256;
+            var minor = (v >> 8) % 256;
+            var major = (v >> 16) % 256;
+            return major + "." + minor + "." + revision;
+        }
         public SimpleDecoder() {
         }
 

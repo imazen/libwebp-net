@@ -8,13 +8,20 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using Imazen.WebP.Extern;
 
-namespace UnitTestProject1
+namespace Imazen.Test.WebP
 {
     public class TestSimpleEncoder
     {
         [Fact]
+        public void TestVersion(){
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
+            Assert.Equal("0.4.1",SimpleEncoder.GetEncoderVersion());
+        }
+        [Fact]
         public void TestEncSimple()
         {
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
+
             var encoder = new SimpleEncoder();
             var fileName = "testimage.jpg";
             var outFileName = "testimageout.webp";

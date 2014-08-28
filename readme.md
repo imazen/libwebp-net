@@ -1,5 +1,10 @@
 ﻿# libwebp wrapper for .NET 2.0 and higher
 
+Build status for branch 'master': ![build status](http://img.shields.io/nuget/v/Imazen.WebP.svg)]
+Last nuget release: ![Nuget release version](http://img.shields.io/nuget/v/Imazen.WebP.svg)
+
+
+
 This library is available on Nuget as [Imazen.WebP](http://nuget.org/packages/Imazen.WebP).
 
 This wrapper was created due to Noesis Innovation's abandonment of http://webp.codeplex.com/
