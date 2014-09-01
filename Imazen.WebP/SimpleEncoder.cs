@@ -37,7 +37,7 @@ namespace Imazen.WebP {
                     to.Write(buffer, 0, used);
                 }
             } finally {
-                NativeMethods.WebPFree(result);
+                NativeMethods.WebPSafeFree(result);
             }
 
         }
