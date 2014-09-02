@@ -298,7 +298,7 @@ namespace Imazen.WebP.Extern
     {
 
         /// Return Type: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPGetDecoderVersion")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPGetDecoderVersion")]
         public static extern int WebPGetDecoderVersion();
 
 
@@ -315,7 +315,7 @@ namespace Imazen.WebP.Extern
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPGetInfo")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPGetInfo")]
         public static extern int WebPGetInfo([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
@@ -324,7 +324,7 @@ namespace Imazen.WebP.Extern
         ///data_size: size_t->unsigned int
         ///width: int*
         ///height: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeRGBA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeRGBA")]
         public static extern IntPtr WebPDecodeRGBA([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
@@ -333,7 +333,7 @@ namespace Imazen.WebP.Extern
         ///data_size: size_t->unsigned int
         ///width: int*
         ///height: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeARGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeARGB")]
         public static extern IntPtr WebPDecodeARGB([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
@@ -342,7 +342,7 @@ namespace Imazen.WebP.Extern
         ///data_size: size_t->unsigned int
         ///width: int*
         ///height: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeBGRA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeBGRA")]
         public static extern IntPtr WebPDecodeBGRA([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
@@ -351,7 +351,7 @@ namespace Imazen.WebP.Extern
         ///data_size: size_t->unsigned int
         ///width: int*
         ///height: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeRGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeRGB")]
         public static extern IntPtr WebPDecodeRGB([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
@@ -360,7 +360,7 @@ namespace Imazen.WebP.Extern
         ///data_size: size_t->unsigned int
         ///width: int*
         ///height: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeBGR")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeBGR")]
         public static extern IntPtr WebPDecodeBGR([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height);
 
 
@@ -373,7 +373,7 @@ namespace Imazen.WebP.Extern
         ///v: uint8_t**
         ///stride: int*
         ///uv_stride: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeYUV")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeYUV")]
         public static extern IntPtr WebPDecodeYUV([InAttribute()] IntPtr data, UIntPtr data_size, ref int width, ref int height, ref IntPtr u, ref IntPtr v, ref int stride, ref int uv_stride);
 
 
@@ -383,7 +383,7 @@ namespace Imazen.WebP.Extern
         ///output_buffer: uint8_t*
         ///output_buffer_size: size_t->unsigned int
         ///output_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeRGBAInto")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeRGBAInto")]
         public static extern IntPtr WebPDecodeRGBAInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr output_buffer, UIntPtr output_buffer_size, int output_stride);
 
 
@@ -393,7 +393,7 @@ namespace Imazen.WebP.Extern
         ///output_buffer: uint8_t*
         ///output_buffer_size: size_t->unsigned int
         ///output_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeARGBInto")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeARGBInto")]
         public static extern IntPtr WebPDecodeARGBInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr output_buffer, UIntPtr output_buffer_size, int output_stride);
 
 
@@ -403,7 +403,7 @@ namespace Imazen.WebP.Extern
         ///output_buffer: uint8_t*
         ///output_buffer_size: size_t->unsigned int
         ///output_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeBGRAInto")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeBGRAInto")]
         public static extern IntPtr WebPDecodeBGRAInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr output_buffer, UIntPtr output_buffer_size, int output_stride);
 
 
@@ -413,7 +413,7 @@ namespace Imazen.WebP.Extern
         ///output_buffer: uint8_t*
         ///output_buffer_size: size_t->unsigned int
         ///output_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeRGBInto")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeRGBInto")]
         public static extern IntPtr WebPDecodeRGBInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr output_buffer, UIntPtr output_buffer_size, int output_stride);
 
 
@@ -423,7 +423,7 @@ namespace Imazen.WebP.Extern
         ///output_buffer: uint8_t*
         ///output_buffer_size: size_t->unsigned int
         ///output_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeBGRInto")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeBGRInto")]
         public static extern IntPtr WebPDecodeBGRInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr output_buffer, UIntPtr output_buffer_size, int output_stride);
 
 
@@ -439,26 +439,26 @@ namespace Imazen.WebP.Extern
         ///v: uint8_t*
         ///v_size: size_t->unsigned int
         ///v_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecodeYUVInto")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecodeYUVInto")]
         public static extern IntPtr WebPDecodeYUVInto([InAttribute()] IntPtr data, UIntPtr data_size, IntPtr luma, UIntPtr luma_size, int luma_stride, IntPtr u, UIntPtr u_size, int u_stride, IntPtr v, UIntPtr v_size, int v_stride);
 
 
         /// Return Type: int
         ///param0: WebPDecBuffer*
         ///param1: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPInitDecBufferInternal")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPInitDecBufferInternal")]
         public static extern int WebPInitDecBufferInternal(ref WebPDecBuffer param0, int param1);
 
 
         /// Return Type: void
         ///buffer: WebPDecBuffer*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPFreeDecBuffer")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPFreeDecBuffer")]
         public static extern void WebPFreeDecBuffer(ref WebPDecBuffer buffer);
 
 
         /// Return Type: WebPIDecoder*
         ///output_buffer: WebPDecBuffer*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPINewDecoder")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPINewDecoder")]
         public static extern IntPtr WebPINewDecoder(ref WebPDecBuffer output_buffer);
 
 
@@ -467,7 +467,7 @@ namespace Imazen.WebP.Extern
         ///output_buffer: uint8_t*
         ///output_buffer_size: size_t->unsigned int
         ///output_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPINewRGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPINewRGB")]
         public static extern IntPtr WebPINewRGB(WEBP_CSP_MODE csp, IntPtr output_buffer, UIntPtr output_buffer_size, int output_stride);
 
 
@@ -484,7 +484,7 @@ namespace Imazen.WebP.Extern
         ///a: uint8_t*
         ///a_size: size_t->unsigned int
         ///a_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPINewYUVA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPINewYUVA")]
         public static extern IntPtr WebPINewYUVA(IntPtr luma, UIntPtr luma_size, int luma_stride, IntPtr u, UIntPtr u_size, int u_stride, IntPtr v, UIntPtr v_size, int v_stride, IntPtr a, UIntPtr a_size, int a_stride);
 
 
@@ -498,13 +498,13 @@ namespace Imazen.WebP.Extern
         ///v: uint8_t*
         ///v_size: size_t->unsigned int
         ///v_stride: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPINewYUV")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPINewYUV")]
         public static extern IntPtr WebPINewYUV(IntPtr luma, UIntPtr luma_size, int luma_stride, IntPtr u, UIntPtr u_size, int u_stride, IntPtr v, UIntPtr v_size, int v_stride);
 
 
         /// Return Type: void
         ///idec: WebPIDecoder*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPIDelete")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPIDelete")]
         public static extern void WebPIDelete(ref WebPIDecoder idec);
 
 
@@ -512,7 +512,7 @@ namespace Imazen.WebP.Extern
         ///idec: WebPIDecoder*
         ///data: uint8_t*
         ///data_size: size_t->unsigned int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPIAppend")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPIAppend")]
         public static extern VP8StatusCode WebPIAppend(ref WebPIDecoder idec, [InAttribute()] IntPtr data, UIntPtr data_size);
 
 
@@ -520,7 +520,7 @@ namespace Imazen.WebP.Extern
         ///idec: WebPIDecoder*
         ///data: uint8_t*
         ///data_size: size_t->unsigned int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPIUpdate")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPIUpdate")]
         public static extern VP8StatusCode WebPIUpdate(ref WebPIDecoder idec, [InAttribute()] IntPtr data, UIntPtr data_size);
 
 
@@ -530,7 +530,7 @@ namespace Imazen.WebP.Extern
         ///width: int*
         ///height: int*
         ///stride: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPIDecGetRGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPIDecGetRGB")]
         public static extern IntPtr WebPIDecGetRGB(ref WebPIDecoder idec, ref int last_y, ref int width, ref int height, ref int stride);
 
 
@@ -545,7 +545,7 @@ namespace Imazen.WebP.Extern
         ///stride: int*
         ///uv_stride: int*
         ///a_stride: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPIDecGetYUVA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPIDecGetYUVA")]
         public static extern IntPtr WebPIDecGetYUVA(ref WebPIDecoder idec, ref int last_y, ref IntPtr u, ref IntPtr v, ref IntPtr a, ref int width, ref int height, ref int stride, ref int uv_stride, ref int a_stride);
 
 
@@ -555,7 +555,7 @@ namespace Imazen.WebP.Extern
         ///top: int*
         ///width: int*
         ///height: int*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPIDecodedArea")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPIDecodedArea")]
         public static extern IntPtr WebPIDecodedArea(ref WebPIDecoder idec, ref int left, ref int top, ref int width, ref int height);
 
 
@@ -564,14 +564,14 @@ namespace Imazen.WebP.Extern
         ///param1: size_t->unsigned int
         ///param2: WebPBitstreamFeatures*
         ///param3: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPGetFeaturesInternal")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPGetFeaturesInternal")]
         public static extern VP8StatusCode WebPGetFeaturesInternal([InAttribute()] IntPtr param0, UIntPtr param1, ref WebPBitstreamFeatures param2, int param3);
 
 
         /// Return Type: int
         ///param0: WebPDecoderConfig*
         ///param1: int
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPInitDecoderConfigInternal")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPInitDecoderConfigInternal")]
         public static extern int WebPInitDecoderConfigInternal(ref WebPDecoderConfig param0, int param1);
 
 
@@ -579,7 +579,7 @@ namespace Imazen.WebP.Extern
         ///data: uint8_t*
         ///data_size: size_t->unsigned int
         ///config: WebPDecoderConfig*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPIDecode")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPIDecode")]
         public static extern IntPtr WebPIDecode([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPDecoderConfig config);
 
 
@@ -587,7 +587,7 @@ namespace Imazen.WebP.Extern
         ///data: uint8_t*
         ///data_size: size_t->unsigned int
         ///config: WebPDecoderConfig*
-        [DllImportAttribute("libwebp.dll", EntryPoint = "WebPDecode")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPDecode")]
         public static extern VP8StatusCode WebPDecode([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPDecoderConfig config);
 
     }
