@@ -22,6 +22,16 @@ extern "C" {
 
 #define WEBP_ENCODER_ABI_VERSION 0x0202    // MAJOR(8b) + MINOR(8b)
 
+// Note: forward declaring enumerations is not allowed in (strict) C and C++,
+// the types are left here for reference.
+// typedef enum WebPImageHint WebPImageHint;
+// typedef enum WebPEncCSP WebPEncCSP;
+// typedef enum WebPPreset WebPPreset;
+// typedef enum WebPEncodingError WebPEncodingError;
+typedef struct WebPConfig WebPConfig;
+typedef struct WebPPicture WebPPicture;   // main structure for I/O
+typedef struct WebPAuxStats WebPAuxStats;
+typedef struct WebPMemoryWriter WebPMemoryWriter;
 
 // Return the encoder's version number, packed in hexadecimal using 8bits for
 // each of major/minor/revision. E.g: v2.5.7 is 0x020507.
@@ -270,9 +280,7 @@ struct WebPPicture {
   // YUV input (mostly used for input to lossy compression)
   WebPEncCSP colorspace;     // colorspace: should be YUV420 for now (=Y'CbCr).
   int width, height;         // dimensions (less or equal to WEBP_MAX_DIMENSION)
-    uint8_t *y;
-    uint8_t *u;
-    uint8_t *v;        // pointers to luma/chroma planes.
+  uint8_t *y, *u, *v;        // pointers to luma/chroma planes.
   int y_stride, uv_stride;   // luma/chroma strides.
   uint8_t* a;                // pointer to the alpha plane
   int a_stride;              // stride of the alpha plane

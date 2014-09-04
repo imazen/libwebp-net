@@ -22,6 +22,17 @@ extern "C" {
 
 #define WEBP_DECODER_ABI_VERSION 0x0203    // MAJOR(8b) + MINOR(8b)
 
+// Note: forward declaring enumerations is not allowed in (strict) C and C++,
+// the types are left here for reference.
+// typedef enum VP8StatusCode VP8StatusCode;
+// typedef enum WEBP_CSP_MODE WEBP_CSP_MODE;
+typedef struct WebPRGBABuffer WebPRGBABuffer;
+typedef struct WebPYUVABuffer WebPYUVABuffer;
+typedef struct WebPDecBuffer WebPDecBuffer;
+typedef struct WebPIDecoder WebPIDecoder;
+typedef struct WebPBitstreamFeatures WebPBitstreamFeatures;
+typedef struct WebPDecoderOptions WebPDecoderOptions;
+typedef struct WebPDecoderConfig WebPDecoderConfig;
 
 // Return the decoder's version number, packed in hexadecimal using 8bits for
 // each of major/minor/revision. E.g: v2.5.7 is 0x020507.
@@ -170,10 +181,7 @@ struct WebPRGBABuffer {    // view as RGBA
 };
 
 struct WebPYUVABuffer {              // view as YUVA
-      uint8_t* y;
-    uint8_t* u;
-    uint8_t* v;
-    uint8_t* a;     // pointer to luma, chroma U/V, alpha samplesles
+  uint8_t* y, *u, *v, *a;     // pointer to luma, chroma U/V, alpha samples
   int y_stride;               // luma stride
   int u_stride, v_stride;     // chroma strides
   int a_stride;               // alpha stride
