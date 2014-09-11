@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+#pragma warning disable 1591
 namespace Imazen.WebP.Extern {
     public partial class NativeMethods {
 
@@ -17,3 +17,4 @@ namespace Imazen.WebP.Extern {
         public const int WEBP_MAX_DIMENSION = 16383;
     }
 }
+#pragma warning restore 1591

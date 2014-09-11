@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 
+#pragma warning disable 1591
 
 namespace Imazen.WebP.Extern
 {
@@ -672,3 +673,5 @@ namespace Imazen.WebP.Extern
 
     }
 }
+
+#pragma warning restore 1591
