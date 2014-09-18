@@ -81,7 +81,9 @@ namespace Imazen.WebP.Extern
         /// Looks for 'name' inside /x86/ and /x64/ subfolders of 'folder', depending on executing architecture. 
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="folder"></param>
+        /// <param name="searchFolders"></param>
+        /// <param name="throwNotFound"></param>
+        /// <param name="throwExceptions"></param>
         /// <returns></returns>
         public static bool AutoLoad(string name, string[] searchFolders, bool throwNotFound, bool throwExceptions)
         {

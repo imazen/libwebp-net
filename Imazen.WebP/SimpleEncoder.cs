@@ -7,6 +7,9 @@ using Imazen.WebP.Extern;
 using System.IO;
 
 namespace Imazen.WebP {
+    /// <summary>
+    /// Encodes Bitmap objects into WebP format
+    /// </summary>
     public class SimpleEncoder {
         public SimpleEncoder() { }
 
@@ -24,6 +27,7 @@ namespace Imazen.WebP {
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="quality"></param>
+        /// <param name="noAlpha"></param>
         public void Encode(Bitmap from, Stream to, float quality, bool noAlpha = false) {
             IntPtr result;
             long length;
@@ -41,7 +45,14 @@ namespace Imazen.WebP {
             }
 
         }
-
+        /// <summary>
+        /// Encodes the given RGB(A) bitmap to the given stream. Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="quality"></param>
+        /// <param name="noAlpha"></param>
+        /// <param name="result"></param>
+        /// <param name="length"></param>
         public void Encode(Bitmap b, float quality, bool noAlpha, out IntPtr result, out long length) {
             if (quality < -1) quality = -1;
             if (quality > 100) quality = 100;
