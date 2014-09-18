@@ -533,8 +533,8 @@ namespace Imazen.WebP.Extern
         public static extern int WebPPictureCopy(ref WebPPicture src, ref WebPPicture dst);
 
 
-        // Return Type: int
-        //pic1: WebPPicture*
+        /// Return Type: int
+        ///pic1: WebPPicture*
         ///pic2: WebPPicture*
         ///metric_type: int
         ///result: float* result[5]

@@ -207,7 +207,7 @@ namespace Imazen.WebP.Extern
 
 
 
-    /// </summary>
+
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct WebPBitstreamFeatures
     {

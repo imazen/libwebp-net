@@ -20,6 +20,9 @@ namespace Imazen.WebP {
             var major = (v >> 16) % 256;
             return major + "." + minor + "." + revision;
         }
+        /// <summary>
+        /// Creates a new instance of SimpleDecoder
+        /// </summary>
         public SimpleDecoder() {
         }
 

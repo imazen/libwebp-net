@@ -67,6 +67,7 @@ namespace Imazen.WebP.Extern
         /// Looks for 'name' inside /x86/ or /x64/ (depending on arch) subfolders of known assembly locations
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="throwFailure"></param>
         /// <returns></returns>
         public static bool AutoLoadNearby(string name, bool throwFailure)
         {
