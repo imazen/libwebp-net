@@ -1,6 +1,6 @@
 ﻿# libwebp wrapper for .NET 2.0 and higher
 
-Build status for branch 'master': ![build status](http://img.shields.io//appveyor/ci/nathanaeljones/libwebp-net.svg)
+Build status for branch 'master': ![build status](http://img.shields.io/appveyor/ci/imazen/libwebp-net.svg)
 Last nuget release: ![Nuget release version](http://img.shields.io/nuget/v/Imazen.WebP.svg)
 
 
