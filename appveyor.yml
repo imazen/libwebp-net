@@ -27,6 +27,7 @@ install:
   - "nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic OBJDIR=output"
   - copy /Y C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll C:\projects\libwebp-net\x86\
   - appveyor PushArtifact C:\projects\libwebp\output\release-dynamic\x86\bin\libwebp.dll -FileName libwebp(x86).dll
+  - cd c:\projects\libwebp-net
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
