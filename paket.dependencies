@@ -3,6 +3,7 @@ source https://nuget.org/api/v2
 nuget FAKE
 nuget SourceLink.Fake
 nuget xunit
+nuget xunit.runner.console
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx
 

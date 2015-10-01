@@ -8,6 +8,7 @@ open Fake.Git
 open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 open Fake.UserInputHelper
+open Fake.Testing
 open System
 open System.IO
 #if MONO
@@ -137,12 +138,12 @@ Target "Build" (fun _ ->
 
 Target "RunTests" (fun _ ->
     !! testAssemblies
-    |> NUnit (fun p ->
+    |> xUnit (fun p ->
         { p with
-            DisableShadowCopy = true
-            TimeOut = TimeSpan.FromMinutes 20.0
-            NUnitXmlOutputPath = "TestResults.xml" })
+            TimeOut = TimeSpan.FromMinutes 20.
+            ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
 )
+
 
 #if MONO
 #else
