@@ -2,8 +2,6 @@ os: Windows Server 2012 R2
 
 shallow_clone: true
 
-version: 0.2.0.{build}
-
 matrix:
   allow_failures:
     - platform: x86
