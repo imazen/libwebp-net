@@ -4,14 +4,6 @@ shallow_clone: true
 
 version: 0.2.0.{build}
 
-# enable patching of AssemblyInfo.* files
-assembly_info:
-  patch: true
-  file: AssemblyInfo.*
-  assembly_version: "0.2.0"
-  assembly_file_version: "{version}"
-  assembly_informational_version: "{version}"
-
 matrix:
   allow_failures:
     - platform: x86
@@ -41,46 +33,17 @@ install:
 #       build configuration       #
 #---------------------------------#
 
-# build platform, i.e. x86, x64, AnyCPU. This setting is optional.
-platform: 
-  - Any CPU
-
-# to add several platforms to build matrix:
-#platform:
-#  - x86
-#  - AnyCPU
-
-# build Configuration, i.e. Debug, Release, etc.
-configuration: Release
-
-build:
-  project: Imazen.WebP.sln      # path to Visual Studio solution or project
-  publish_nuget: false             # package projects with .nuspec files and push to artifacts
-
-  # MSBuild verbosity level
-  verbosity: minimal
-
-
-# scripts to run before build
-before_build:
-#  - cd C:\projects\libwebp-net\Imazen.Test.WebP
-#  - nuget restore Imazen.Test.WebP.-PackageDirectory C:\projects\libwebp-net\packages
-  - cd C:\projects\libwebp-net
-  - nuget restore Imazen.WebP.sln -PackagesDirectory C:\projects\libwebp-net\packages
-
-# scripts to run after build
-#after_build:
-
-# to run your custom scripts instead of automatic MSBuild
-#build_script:
-
-#---------------------------------#
-#      artifacts configuration    #
-#---------------------------------#
-
 test_script:
   - xunit.console.clr4.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
   - xunit.console.clr4.x86.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
+
+init:
+  - git config --global core.autocrlf input
+build_script:
+  - cmd: build.cmd
+test: off
+version: 0.2.0.{build}
+  
 
 artifacts:
   - path: output\release-dynamic\x64\bin\libwebp.dll
