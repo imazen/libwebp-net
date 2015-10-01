@@ -9,3 +9,4 @@ obj/
 packages/**/*
 .paket/paket.exe
 paket-files
+.fake
