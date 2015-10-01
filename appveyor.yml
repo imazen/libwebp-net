@@ -1,13 +1,6 @@
-os: Windows Server 2012 R2
+#os: Windows Server 2012 R2
 
 shallow_clone: true
-
-matrix:
-  allow_failures:
-    - platform: x86
-      configuration: Release
-    - platform: x64
-      configuration: Release
 
 clone_folder: c:\projects\libwebp-net
 
