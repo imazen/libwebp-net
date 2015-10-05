@@ -12,7 +12,3 @@ build_script:
   - cmd: build.cmd
 
 version: 0.2.0.{build}
-
-# scripts to run before build
-before_build:
-  - .paket/paket restore
