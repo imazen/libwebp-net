@@ -49,7 +49,7 @@ let tags = "spike images resizer"
 let solutionFile  = "Imazen.WebP.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "Imazen.Test.Webp/**/bin/Release/*Test*.dll"
+let testAssemblies = "Imazen.Test.Webp/**/bin/Release/*Test.*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -138,7 +138,7 @@ Target "Build" (fun _ ->
 
 Target "RunTests" (fun _ ->
     !! testAssemblies
-    |> xUnit (fun p ->
+    |> xUnit2 (fun p ->
         { p with
             TimeOut = TimeSpan.FromMinutes 20.
             ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
