@@ -79,8 +79,8 @@ before_build:
 #---------------------------------#
 
 test_script:
-  - packages\xunit.runner.console.2.1.0\tools\xunit.console.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
-  - packages\xunit.runner.console.2.1.0\tools\xunit.console.x86.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
+  - packages\xunit.runner.console.2.1.0\tools\xunit.console.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll -appveyor
+  - packages\xunit.runner.console.2.1.0\tools\xunit.console.x86.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll -appveyor
 
 artifacts:
   - path: output\release-dynamic\x64\bin\libwebp.dll
