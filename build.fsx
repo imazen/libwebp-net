@@ -117,7 +117,7 @@ Target "CopyBinaries" (fun _ ->
 // Clean build results
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp"]
+    CleanDirs ["bin"; "temp"; "Imazen.Test.Webp/bin"; "Imazen.Test.Webp/obj"; "Imazen.WebP/bin"; "Imazen.WebP/obj"]
 )
 
 Target "CleanDocs" (fun _ ->
