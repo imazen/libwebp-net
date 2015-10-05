@@ -79,6 +79,7 @@ before_build:
 #---------------------------------#
 
 test_script:
+  - dir packages\xunit.runner.console\tools
   - packages\xunit.runner.console\tools\xunit.console.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
   - packages\xunit.runner.console\tools\xunit.console.x86.exe Imazen.Test.WebP\bin\Release\Imazen.Test.Webp.dll /appveyor
 
