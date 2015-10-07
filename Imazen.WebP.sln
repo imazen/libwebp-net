@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{E5FD4A8E-2EA4-4B64-8909-4EF4B493385B}"
+	ProjectSection(SolutionItems) = preProject
+		paket.dependencies = paket.dependencies
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.WebP", "Imazen.WebP\Imazen.WebP.csproj", "{92F607A3-2F04-4536-8346-B6FEF8B774FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.Test.Webp", "Imazen.Test.Webp\Imazen.Test.Webp.csproj", "{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}"

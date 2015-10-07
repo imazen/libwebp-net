@@ -1,10 +1,10 @@
-source https://nuget.org/api/v2
+source https://www.nuget.org/api/v2/
+
+nuget xunit 1.9.2 framework: >= net45
+nuget xunit.runner.console
 
 nuget FSharp.Formatting
 nuget FAKE
 nuget SourceLink.Fake
-nuget xunit
-nuget xunit.runner.console
-
 github fsharp/FAKE modules/Octokit/Octokit.fsx
 
