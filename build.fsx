@@ -49,7 +49,8 @@ let tags = "spike images resizer"
 let solutionFile  = "Imazen.WebP.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "Imazen.Test.Webp/**/bin/Release/*Test.*.dll"
+let testAssemblies = "bin/**/*Test.*.dll"
+//let testAssemblies = "src/Imazen.Test.Webp/**/bin/Release/*Test.*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -117,7 +118,7 @@ Target "CopyBinaries" (fun _ ->
 // Clean build results
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp"; "Imazen.Test.Webp/bin"; "Imazen.Test.Webp/obj"; "Imazen.WebP/bin"; "Imazen.WebP/obj"]
+    CleanDirs ["bin"; "temp"; "src/Imazen.Test.Webp/bin"; "src/Imazen.Test.Webp/obj"; "src/Imazen.WebP/bin"; "src/Imazen.WebP/obj"]
 )
 
 Target "CleanDocs" (fun _ ->

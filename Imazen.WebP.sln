@@ -8,9 +8,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{E5FD4A
 		paket.dependencies = paket.dependencies
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.WebP", "Imazen.WebP\Imazen.WebP.csproj", "{92F607A3-2F04-4536-8346-B6FEF8B774FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.WebP", "src\Imazen.WebP\Imazen.WebP.csproj", "{92F607A3-2F04-4536-8346-B6FEF8B774FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.Test.Webp", "Imazen.Test.Webp\Imazen.Test.Webp.csproj", "{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imazen.Test.Webp", "src\Imazen.Test.Webp\Imazen.Test.Webp.csproj", "{6C57E3C1-C04F-4C96-AD90-CDA79AE53574}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
