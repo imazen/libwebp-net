@@ -1,6 +1,7 @@
 source https://www.nuget.org/api/v2/
 
 nuget xunit 1.9.2 framework: >= net45
+nuget xunit.runner.console
 
 nuget FSharp.Formatting
 nuget FAKE

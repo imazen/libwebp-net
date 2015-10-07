@@ -18,6 +18,7 @@ NUGET
       Microsoft.Net.Http
     SourceLink.Fake (1.1.0)
     xunit (1.9.2) - framework: >= net45
+    xunit.runner.console (2.1.0)
 GITHUB
   remote: fsharp/FAKE
   specs:
