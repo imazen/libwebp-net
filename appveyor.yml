@@ -9,4 +9,6 @@ artifacts:
     name: bin
   - path: bin\*.nupkg
     name: appveyor-nuget
-    
+
+on_success:
+  - appveyor PushArtifact bin\Imazen.WebP.9.0.1.nupkg
