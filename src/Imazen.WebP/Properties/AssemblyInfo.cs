@@ -2,7 +2,7 @@
 using System.Reflection;
 
 [assembly: AssemblyTitleAttribute("Imazen.WebP")]
-[assembly: AssemblyProductAttribute("WebP.NET")]
+[assembly: AssemblyProductAttribute("Imazen.WebP")]
 [assembly: AssemblyDescriptionAttribute(".NET wrapper for libwebp")]
 [assembly: AssemblyVersionAttribute("9.0.1")]
 [assembly: AssemblyFileVersionAttribute("9.0.1")]

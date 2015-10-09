@@ -29,7 +29,7 @@ open SourceLink
 
 // The name of the project
 // (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
-let project = "WebP.NET"
+let project = "Imazen.WebP"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
@@ -40,7 +40,7 @@ let summary = ".NET wrapper for libwebp"
 let description = "Imazen .NET wrapper for libwebp"
 
 // List of author names (for NuGet package)
-let authors = [ "Syver Enstad" ]
+let authors = [ "Nathanael Jones" ]
 
 // Tags for your project (for NuGet package)
 let tags = "spike images resizer"
