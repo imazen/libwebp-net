@@ -145,6 +145,16 @@ Target "RunTests" (fun _ ->
             ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
 )
 
+Target "RunTestsX86" (fun _ ->
+    !! testAssemblies
+    |> xUnit2 (fun p ->
+        { p with
+            TimeOut = TimeSpan.FromMinutes 20.
+            ToolPath = "packages/xunit.runner.console/tools/xunit.console.x86.exe" })
+)
+
+
+
 
 #if MONO
 #else
@@ -341,6 +351,7 @@ Target "All" DoNothing
   ==> "Build"
   ==> "CopyBinaries"
   ==> "RunTests"
+  ==> "RunTestsX86"
   ==> "GenerateReferenceDocs"
   ==> "GenerateDocs"
   ==> "All"
