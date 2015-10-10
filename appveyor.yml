@@ -1,11 +1,13 @@
 init:
   - git config --global core.autocrlf input
 build_script:
-  - cmd: build.cmd
-test: off
+  - cmd: build.cmd NuGet
+#test: off
 version: 0.2.0.{build}
 artifacts:
   - path: bin
     name: bin
+  - path: bin\*.nupkg
 
-    
+on_success:
+  - ps: Push-AppveyorArtifact "bin/Imazen.WebP*.nupkg"
