@@ -10,3 +10,6 @@ packages/**/*
 .paket/paket.exe
 paket-files
 .fake
+docs/content/license.md
+docs/content/release-notes.md
+docs/output/
