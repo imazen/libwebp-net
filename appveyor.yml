@@ -9,5 +9,5 @@ artifacts:
     name: bin
   - path: bin\*.nupkg
 
-#on_success:
-#  - appveyor PushArtifact bin\Imazen.WebP.9.0.1.nupkg
+on_success:
+  - ps: Push-AppveyorArtifact "bin/Imazen.WebP*.nupkg"
