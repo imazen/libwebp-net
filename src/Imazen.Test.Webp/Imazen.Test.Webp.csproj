@@ -84,6 +84,7 @@
     <Compile Include="TestSimpleDecoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestSimpleEncoder.cs" />
+    <Compile Include="TestSimpleEncoderDecoderRoundtrip.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
