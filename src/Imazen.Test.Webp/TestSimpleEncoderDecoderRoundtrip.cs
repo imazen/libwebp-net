@@ -80,6 +80,17 @@ namespace Imazen.Test.Webp
         }
 
         [Fact]
+        public void TestRgb24()
+        {
+            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
+
+            using (var gdiBitmap = GenerateTestBitmap(PixelFormat.Format24bppRgb, 10, 10, TestSimpleEncoderDecoderRoundtrip.RandomRgb))
+            {
+                TestLosslessRoundtrip(gdiBitmap);
+            }
+        }
+
+        [Fact]
         public void TestAgb32()
         {
             Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();

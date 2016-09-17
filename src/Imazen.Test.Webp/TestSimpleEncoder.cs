@@ -35,7 +35,7 @@ namespace Imazen.Test.WebP
 
                 mBitmap = new Bitmap(img);
 
-                encoder.Encode(mBitmap, outStream, 100, false);
+                encoder.Encode(mBitmap, outStream, 100);
             }
 
             FileInfo finfo = new FileInfo(outFileName);

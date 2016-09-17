@@ -11,7 +11,7 @@ namespace Imazen.WebP.Extern
 {
     public static class LoadLibrary
     {
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
         static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hReservedNull, uint dwFlags);
 
         public static bool EnsureLoadedByPath(string fullPath, bool throwException)

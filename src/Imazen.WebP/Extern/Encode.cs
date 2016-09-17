@@ -390,7 +390,7 @@ namespace Imazen.WebP.Extern
     {
 
         /// Return Type: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPGetEncoderVersion")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPGetEncoderVersion", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPGetEncoderVersion();
 
 
@@ -401,7 +401,7 @@ namespace Imazen.WebP.Extern
         ///stride: int
         ///quality_factor: float
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeRGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeRGB", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr WebPEncodeRGB([InAttribute()] IntPtr rgb, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
@@ -412,7 +412,7 @@ namespace Imazen.WebP.Extern
         ///stride: int
         ///quality_factor: float
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeBGR")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeBGR", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr WebPEncodeBGR([InAttribute()] IntPtr bgr, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
@@ -423,7 +423,7 @@ namespace Imazen.WebP.Extern
         ///stride: int
         ///quality_factor: float
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeRGBA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeRGBA", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr WebPEncodeRGBA([InAttribute()] IntPtr rgba, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
@@ -434,7 +434,7 @@ namespace Imazen.WebP.Extern
         ///stride: int
         ///quality_factor: float
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeBGRA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeBGRA", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr WebPEncodeBGRA([InAttribute()] IntPtr bgra, int width, int height, int stride, float quality_factor, ref IntPtr output);
 
 
@@ -444,7 +444,7 @@ namespace Imazen.WebP.Extern
         ///height: int
         ///stride: int
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessRGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessRGB", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr WebPEncodeLosslessRGB([InAttribute()] IntPtr rgb, int width, int height, int stride, ref IntPtr output);
 
 
@@ -454,7 +454,7 @@ namespace Imazen.WebP.Extern
         ///height: int
         ///stride: int
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessBGR")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessBGR", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr WebPEncodeLosslessBGR([InAttribute()] IntPtr bgr, int width, int height, int stride, ref IntPtr output);
 
 
@@ -464,7 +464,7 @@ namespace Imazen.WebP.Extern
         ///height: int
         ///stride: int
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessRGBA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessRGBA", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr WebPEncodeLosslessRGBA([InAttribute()] IntPtr rgba, int width, int height, int stride, ref IntPtr output);
 
 
@@ -474,7 +474,7 @@ namespace Imazen.WebP.Extern
         ///height: int
         ///stride: int
         ///output: uint8_t**
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessBGRA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncodeLosslessBGRA", CallingConvention = CallingConvention.Cdecl)]
         public static extern UIntPtr WebPEncodeLosslessBGRA([InAttribute()] IntPtr bgra, int width, int height, int stride, ref IntPtr output);
 
 
@@ -483,19 +483,19 @@ namespace Imazen.WebP.Extern
         ///param1: WebPPreset->Anonymous_017d4167_f53e_4b3d_b029_592ff5c3f80b
         ///param2: float
         ///param3: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPConfigInitInternal")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPConfigInitInternal", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPConfigInitInternal(ref WebPConfig param0, WebPPreset param1, float param2, int param3);
 
 
         /// Return Type: int
         ///config: WebPConfig*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPValidateConfig")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPValidateConfig", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPValidateConfig(ref WebPConfig config);
 
 
         /// Return Type: void
         ///writer: WebPMemoryWriter*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPMemoryWriterInit")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPMemoryWriterInit", CallingConvention = CallingConvention.Cdecl)]
         public static extern void WebPMemoryWriterInit(ref WebPMemoryWriter writer);
 
 
@@ -503,33 +503,33 @@ namespace Imazen.WebP.Extern
         ///data: uint8_t*
         ///data_size: size_t->unsigned int
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPMemoryWrite")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPMemoryWrite", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPMemoryWrite([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPPicture picture);
 
 
         /// Return Type: int
         ///param0: WebPPicture*
         ///param1: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureInitInternal")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureInitInternal", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureInitInternal(ref WebPPicture param0, int param1);
 
 
         /// Return Type: int
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureAlloc")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureAlloc", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureAlloc(ref WebPPicture picture);
 
 
         /// Return Type: void
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureFree")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureFree", CallingConvention = CallingConvention.Cdecl)]
         public static extern void WebPPictureFree(ref WebPPicture picture);
 
 
         /// Return Type: int
         ///src: WebPPicture*
         ///dst: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureCopy")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureCopy", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureCopy(ref WebPPicture src, ref WebPPicture dst);
 
 
@@ -551,7 +551,7 @@ namespace Imazen.WebP.Extern
         /// <param name="metric_type">0 = PSNR, 1 = SSIM, 2 = LSIM</param>
         /// <param name="result"></param>
         /// <returns></returns>
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureDistortion")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureDistortion", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureDistortion(ref WebPPicture src, ref WebPPicture reference, int metric_type, ref float result);
 
 
@@ -563,7 +563,7 @@ namespace Imazen.WebP.Extern
         ///top: int
         ///width: int
         ///height: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureCrop")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureCrop", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureCrop(ref WebPPicture picture, int left, int top, int width, int height);
 
 
@@ -574,13 +574,13 @@ namespace Imazen.WebP.Extern
         ///width: int
         ///height: int
         ///dst: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureView")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureView", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureView(ref WebPPicture src, int left, int top, int width, int height, ref WebPPicture dst);
 
 
         /// Return Type: int
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureIsView")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureIsView", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureIsView(ref WebPPicture picture);
 
 
@@ -588,7 +588,7 @@ namespace Imazen.WebP.Extern
         ///pic: WebPPicture*
         ///width: int
         ///height: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureRescale")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureRescale", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureRescale(ref WebPPicture pic, int width, int height);
 
 
@@ -596,7 +596,7 @@ namespace Imazen.WebP.Extern
         ///picture: WebPPicture*
         ///rgb: uint8_t*
         ///rgb_stride: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportRGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportRGB", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureImportRGB(ref WebPPicture picture, [InAttribute()] IntPtr rgb, int rgb_stride);
 
 
@@ -604,7 +604,7 @@ namespace Imazen.WebP.Extern
         ///picture: WebPPicture*
         ///rgba: uint8_t*
         ///rgba_stride: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportRGBA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportRGBA", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureImportRGBA(ref WebPPicture picture, [InAttribute()] IntPtr rgba, int rgba_stride);
 
 
@@ -612,7 +612,7 @@ namespace Imazen.WebP.Extern
         ///picture: WebPPicture*
         ///rgbx: uint8_t*
         ///rgbx_stride: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportRGBX")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportRGBX", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureImportRGBX(ref WebPPicture picture, [InAttribute()] IntPtr rgbx, int rgbx_stride);
 
 
@@ -620,7 +620,7 @@ namespace Imazen.WebP.Extern
         ///picture: WebPPicture*
         ///bgr: uint8_t*
         ///bgr_stride: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportBGR")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportBGR", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureImportBGR(ref WebPPicture picture, [InAttribute()] IntPtr bgr, int bgr_stride);
 
 
@@ -628,7 +628,7 @@ namespace Imazen.WebP.Extern
         ///picture: WebPPicture*
         ///bgra: uint8_t*
         ///bgra_stride: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportBGRA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportBGRA", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureImportBGRA(ref WebPPicture picture, [InAttribute()] IntPtr bgra, int bgra_stride);
 
 
@@ -636,39 +636,39 @@ namespace Imazen.WebP.Extern
         ///picture: WebPPicture*
         ///bgrx: uint8_t*
         ///bgrx_stride: int
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportBGRX")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportBGRX", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureImportBGRX(ref WebPPicture picture, [InAttribute()] IntPtr bgrx, int bgrx_stride);
 
 
         /// Return Type: int
         ///picture: WebPPicture*
         ///colorspace: WebPEncCSP->Anonymous_84ce7065_fe91_48b4_93d8_1f0e84319dba
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureARGBToYUVA")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureARGBToYUVA", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureARGBToYUVA(ref WebPPicture picture, WebPEncCSP colorspace);
 
 
         /// Return Type: int
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureYUVAToARGB")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureYUVAToARGB", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureYUVAToARGB(ref WebPPicture picture);
 
 
         /// Return Type: void
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPCleanupTransparentArea")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPCleanupTransparentArea", CallingConvention = CallingConvention.Cdecl)]
         public static extern void WebPCleanupTransparentArea(ref WebPPicture picture);
 
 
         /// Return Type: int
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureHasTransparency")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureHasTransparency", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureHasTransparency(ref WebPPicture picture);
 
 
         /// Return Type: int
         ///config: WebPConfig*
         ///picture: WebPPicture*
-        [DllImportAttribute("libwebp", EntryPoint = "WebPEncode")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPEncode", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPEncode(ref WebPConfig config, ref WebPPicture picture);
 
     }

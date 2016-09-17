@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace Imazen.WebP.Extern {
     public partial class NativeMethods {
 
-        [DllImportAttribute("libwebp", EntryPoint = "WebPSafeFree")]
+        [DllImportAttribute("libwebp", EntryPoint = "WebPSafeFree", CallingConvention = CallingConvention.Cdecl)]
         public static extern void WebPSafeFree(IntPtr toDeallocate);
     }
 }
