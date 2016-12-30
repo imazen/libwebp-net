@@ -20,3 +20,13 @@ Review the following history logs for changes since the last release:
 http://git.chromium.org/gitweb/?p=webm/libwebp.git;a=history;f=src/webp/types.h;hb=HEAD
 http://git.chromium.org/gitweb/?p=webm/libwebp.git;a=history;f=src/webp/encode.h;hb=HEAD
 http://git.chromium.org/gitweb/?p=webm/libwebp.git;a=history;f=src/webp/decode.h;hb=HEAD
+
+
+Note that Imazen occasonally syncs imazen/libwebp with upstream libwebp
+https://github.com/imazen/libwebp
+
+And merges their build files into release branches, so that AppVeyor can produce clean builds. 
+https://ci.appveyor.com/project/imazen/libwebp
+
+0.5.2 here: 
+https://ci.appveyor.com/project/imazen/libwebp/build/0.5.2.21
