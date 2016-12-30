@@ -1,21 +1,34 @@
-﻿# libwebp wrapper for .NET 2.0 and higher
+# libwebp wrapper for .NET
 
 Build status for branch 'master': ![build status](http://img.shields.io/appveyor/ci/imazen/libwebp-net.svg)
 Last nuget release: ![Nuget release version](http://img.shields.io/nuget/v/Imazen.WebP.svg)
 
-
-
 This library is available on Nuget as [Imazen.WebP](http://nuget.org/packages/Imazen.WebP).
 
-This wrapper was created due to Noesis Innovation's abandonment of http://webp.codeplex.com/
+This library offers P/Invoke exposure for webp/decode.h and webp/encode.h, but not demux.h and mux.h.
 
-Our goals are also a bit more ambitious:
+## Key APIs
 
-1. Offer low-level P/Invoke exposure for the full libwebp API (complete, partially tested).
-2. Be binary compatible with as-is NMake builds of libwebp (no custom C/C++) (complete).
-3. Offer a simple encode/decode API (complete).
-4. Offer a more detailed encode/decode API for more complex use cases (not yet completed).
+* `new Imazen.WebP.SimpleDecoder().DecodeFromBytes(byte[] data, long length)` -> `System.Drawing.Bitmap`
+* `new Imazen.WebP.SimpleEncoder().Encode(Bitmap from, Stream to, float quality)`
+* `Imazen.WebP.SimpleEncoder.GetEncoderVersion() -> String`, `Imazen.WebP.SimpleDecoder.GetDecoderVersion() -> String`
 
+## Improvements we're very interested in
+
+* Expose the power of Imazen.WebP.Extern.WebPConfig and Imazen.WebP.Extern.WebPPreset for better encoding. 
+* Consider using WebPDecode for better decode error details. 
+* Animation support
+* Make LoadLibrary cross-platform (although it is not strictly neccessary)
+* Add .NET Core support. This will likely require introducing a PixelBuffer{width, height, ptr, stride} interface that can wrap System.Drawing.Bitmap via adapter. System.Drawing.Bitmap is currently directly used by the `SimpleDecoder` and `SimpleEncoder` classes, but these total < 200 lines of code. Or, leave the core API as P/Invoke only. libwebp doesn't have a bad API at all. 
+
+## Windows builds of libwebp 0.5.2 can be found here:
+
+https://s3.amazonaws.com/resizer-dynamic-downloads/webp/0.5.2/x86_64/libwebp.dll
+https://s3.amazonaws.com/resizer-dynamic-downloads/webp/0.5.2/x86/libwebp.dll
+
+This library is binary compatible with as-is NMake builds of libwebp (no custom C/C++).
+
+## License
 
 This software is released under the MIT license:
 
