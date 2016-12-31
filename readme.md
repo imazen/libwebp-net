@@ -26,6 +26,8 @@ This library offers P/Invoke exposure for webp/decode.h and webp/encode.h, but n
 https://s3.amazonaws.com/resizer-dynamic-downloads/webp/0.5.2/x86_64/libwebp.dll
 https://s3.amazonaws.com/resizer-dynamic-downloads/webp/0.5.2/x86/libwebp.dll
 
+You may need vcruntime14 (VS 2015 C++ Redistributable) https://www.microsoft.com/en-us/download/details.aspx?id=48145
+
 This library is binary compatible with as-is NMake builds of libwebp (no custom C/C++).
 
 ## License
