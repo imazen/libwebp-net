@@ -43,7 +43,7 @@ let description = "Imazen .NET wrapper for libwebp"
 let authors = [ "Nathanael Jones" ]
 
 // Tags for your project (for NuGet package)
-let tags = "spike images resizer"
+let tags = "webp imageresizer"
 
 // File system information 
 let solutionFile  = "Imazen.WebP.sln"

@@ -228,29 +228,20 @@ namespace Imazen.WebP.Extern
         public int has_alpha;
 
         /// <summary>
-        /// Unused for now - should be 0
+        /// True if the bitstream contains an animation
         /// </summary>
-        public int bitstream_version;
+        public int has_animation;
 
         /// <summary>
-        /// If true, incremental decoding is not reccomended
+        /// 0 = undefined (/mixed), 1 = lossy, 2 = lossless
         /// </summary>
-        public int no_incremental_decoding;
+        public int format;
 
-        /// <summary>
-        /// Unused, should be 0 for now
-        /// </summary>
-        public int rotate;
-
-        /// <summary>
-        /// Unused, should be 0 for now
-        /// </summary>
-        public int uv_sampling;
 
         /// <summary>
         /// Padding for later use
         /// </summary>
-        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3, ArraySubType = UnmanagedType.U4)]
+        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.U4)]
         public uint[] pad;
     }
 
@@ -272,9 +263,9 @@ namespace Imazen.WebP.Extern
         public int use_threads;                    // if true, use multi-threaded decoding
         public int dithering_strength;             // dithering strength (0=Off, 100=full)
 
-        // Unused for now:
-        public int force_rotation;                 // forced rotation (to be applied _last_)
-        public int no_enhancement;                 // if true, discard enhancement layer
+        public int flip;                           // flip output vertically
+        public int alpha_dithering_strength;       // alpha dithering strength in [0..100]
+
         /// uint32_t[5]
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.U4)]
         public uint[] pad;

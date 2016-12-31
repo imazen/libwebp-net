@@ -13,3 +13,5 @@ paket-files
 docs/content/license.md
 docs/content/release-notes.md
 docs/output/
+*.dll
+src/Imazen.Test.Webp/Imazen.Test.Webp.csproj.user

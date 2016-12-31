@@ -13,7 +13,7 @@ namespace Imazen.Test.Webp
         public void TestWebPVersions()
         {
             Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
-            Assert.Equal("0.4.1",SimpleDecoder.GetDecoderVersion());
+            Assert.Equal("0.5.2",SimpleDecoder.GetDecoderVersion());
         }
         [Fact]
         public void TestDecSimple()
@@ -25,7 +25,7 @@ namespace Imazen.Test.Webp
             var outFile = "testimageout.jpg";
             File.Delete(outFile);
             FileStream outStream = new FileStream(outFile, FileMode.Create);
-            using (Stream inputStream = System.IO.File.Open(fileName, System.IO.FileMode.Open))
+            using (Stream inputStream = File.Open(fileName, System.IO.FileMode.Open))
             {
 
                 var bytes = ReadFully(inputStream);

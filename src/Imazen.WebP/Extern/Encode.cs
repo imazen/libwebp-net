@@ -27,74 +27,106 @@ namespace Imazen.WebP.Extern
     public struct WebPConfig
     {
 
-        /// int
+        /// Lossless encoding (0=lossy(default), 1=lossless).
         public int lossless;
 
-        /// float
+        /// between 0 (smallest file) and 100 (biggest)
         public float quality;
 
-        /// int
+        /// quality/speed trade-off (0=fast, 6=slower-better)
         public int method;
 
         /// WebPImageHint->Anonymous_838f22f5_6f57_48a0_9ecb_8eec917009f9
         public WebPImageHint image_hint;
 
-        /// int
+        // Parameters related to lossy compression only:
+
+        /// if non-zero, set the desired target size in bytes. Takes precedence over the 'compression' parameter.
         public int target_size;
 
-        /// float
+        /// if non-zero, specifies the minimal distortion to try to achieve. Takes precedence over target_size.
         public float target_PSNR;
 
-        /// int
+        /// maximum number of segments to use, in [1..4]
         public int segments;
 
-        /// int
+        /// Spatial Noise Shaping. 0=off, 100=maximum.
         public int sns_strength;
 
-        /// int
+        /// range: [0 = off .. 100 = strongest]
         public int filter_strength;
 
-        /// int
+        /// range: [0 = off .. 7 = least sharp]
         public int filter_sharpness;
 
-        /// int
+        /// filtering type: 0 = simple, 1 = strong (only used
+        /// if filter_strength > 0 or autofilter > 0)
         public int filter_type;
 
-        /// int
+        ///  Auto adjust filter's strength [0 = off, 1 = on]
         public int autofilter;
 
-        /// int
+        /// Algorithm for encoding the alpha plane (0 = none,
+        /// 1 = compressed with WebP lossless). Default is 1.
         public int alpha_compression;
 
-        /// int
+        /// Predictive filtering method for alpha plane.
+        ///  0: none, 1: fast, 2: best. Default if 1.
         public int alpha_filtering;
 
-        /// int
+        /// Between 0 (smallest size) and 100 (lossless).
+                           // Default is 100.
         public int alpha_quality;
 
-        /// int
+        /// number of entropy-analysis passes (in [1..10]).
         public int pass;
 
-        /// int
+        /// if true, export the compressed picture back.
+        /// In-loop filtering is not applied.
         public int show_compressed;
 
-        /// int
+        /// preprocessing filter:
+        /// 0=none, 1=segment-smooth, 2=pseudo-random dithering
         public int preprocessing;
 
-        /// int
+        /// log2(number of token partitions) in [0..3]. Default
+        /// is set to 0 for easier progressive decoding.
         public int partitions;
 
-        /// int
+        /// quality degradation allowed to fit the 512k limit
+        /// on prediction modes coding (0: no degradation,
+        /// 100: maximum possible degradation).
         public int partition_limit;
 
+        /// <summary>
+        /// If true, compression parameters will be remapped
+        /// to better match the expected output size from
+        /// JPEG compression. Generally, the output size will
+        /// be similar but the degradation will be lower.
+        /// </summary>
         public int emulate_jpeg_size;
 
+        /// If non-zero, try and use multi-threaded encoding.
         public int thread_level;
 
+        /// <summary>
+        /// If set, reduce memory usage (but increase CPU use).
+        /// </summary>
         public int low_memory;
 
-        /// uint32_t[5]
-        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.U4)]
+        /// <summary>
+        ///  Near lossless encoding [0 = max loss .. 100 = off (default)].
+        /// </summary>
+        public int near_lossless; 
+           
+        /// if non-zero, preserve the exact RGB values under
+        /// transparent area. Otherwise, discard this invisible
+        /// RGB information for better compression. The default
+        /// value is 0. 
+        public int exact;             
+
+        /// uint32_t[3]
+        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3, ArraySubType = UnmanagedType.U4)]
         public uint[] pad;
     }
 
@@ -104,14 +136,19 @@ namespace Imazen.WebP.Extern
         /// WEBP_PRESET_DEFAULT -> 0
         WEBP_PRESET_DEFAULT = 0,
 
+        /// digital picture, like portrait, inner shot
         WEBP_PRESET_PICTURE,
 
+        /// outdoor photograph, with natural lighting
         WEBP_PRESET_PHOTO,
 
+        /// hand or line drawing, with high-contrast details
         WEBP_PRESET_DRAWING,
 
+        /// small-sized colorful images
         WEBP_PRESET_ICON,
 
+        /// text-like
         WEBP_PRESET_TEXT,
     }
 
@@ -179,8 +216,13 @@ namespace Imazen.WebP.Extern
         /// int
         public int lossless_size;
 
-        /// uint32_t[4]
-        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.U4)]
+        /// lossless header (transform, huffman etc) size
+        public  int lossless_hdr_size;
+
+        /// lossless image data size
+        public int lossless_data_size;      
+        /// uint32_t[2]
+        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 2, ArraySubType = UnmanagedType.U4)]
         public uint[] pad;
     }
 
@@ -219,34 +261,16 @@ namespace Imazen.WebP.Extern
     public enum WebPEncCSP
     {
 
-        /// WEBP_YUV420 -> 0
+        /// 4:2:0 (half-res chroma x and y)
         WEBP_YUV420 = 0,
 
-        /// WEBP_YUV422 -> 1
-        WEBP_YUV422 = 1,
-
-        /// WEBP_YUV444 -> 2
-        WEBP_YUV444 = 2,
-
-        /// WEBP_YUV400 -> 3
-        WEBP_YUV400 = 3,
-
-        /// WEBP_CSP_UV_MASK -> 3
+        /// bit-mask to get the UV sampling factors
         WEBP_CSP_UV_MASK = 3,
 
-        /// WEBP_YUV420A -> 4
+        /// 4:2:0 with alpha
         WEBP_YUV420A = 4,
 
-        /// WEBP_YUV422A -> 5
-        WEBP_YUV422A = 5,
-
-        /// WEBP_YUV444A -> 6
-        WEBP_YUV444A = 6,
-
-        /// WEBP_YUV400A -> 7
-        WEBP_YUV400A = 7,
-
-        /// WEBP_CSP_ALPHA_BIT -> 4
+        /// Bit mask to set alpha
         WEBP_CSP_ALPHA_BIT = 4,
     }
 
@@ -281,15 +305,24 @@ namespace Imazen.WebP.Extern
     }
 
 
-
+    /// <summary>
+    ///  Main exchange structure (input samples, output bytes, statistics)
+    /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
     public struct WebPPicture
     {
 
-        /// int
+        //   INPUT
+        //////////////
+        // Main flag for encoder selecting between ARGB or YUV input.
+        // It is recommended to use ARGB input (*argb, argb_stride) for lossless
+        // compression, and YUV input (*y, *u, *v, etc.) for lossy compression
+        // since these are the respective native colorspace for these formats.
         public int use_argb;
 
-        /// WebPEncCSP->Anonymous_84ce7065_fe91_48b4_93d8_1f0e84319dba
+        // YUV input (mostly used for input to lossy compression)
+
+        /// colorspace: should be YUV420 for now (=Y'CbCr). WebPEncCSP->Anonymous_84ce7065_fe91_48b4_93d8_1f0e84319dba
         public WebPEncCSP colorspace;
 
         /// int
@@ -298,7 +331,7 @@ namespace Imazen.WebP.Extern
         /// int
         public int height;
 
-        /// uint8_t*
+        /// uint8_t* pointers to luma/chroma planes.
         public IntPtr y;
 
         /// uint8_t*
@@ -333,6 +366,9 @@ namespace Imazen.WebP.Extern
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3, ArraySubType = UnmanagedType.U4)]
         public uint[] pad2;
 
+        // OUTPUT 
+
+
         /// WebPWriterFunction
         public WebPWriterFunction writer;
 
@@ -362,17 +398,15 @@ namespace Imazen.WebP.Extern
         public uint[] pad3;
 
         /// uint8_t*
-        public IntPtr u0;
+        public IntPtr pad4;
 
         /// uint8_t*
-        public IntPtr v0;
+        public IntPtr pad5;
+        
 
-        /// int
-        public int uv0_stride;
-
-        /// uint32_t[7]
-        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 7, ArraySubType = UnmanagedType.U4)]
-        public uint[] pad4;
+        /// uint32_t[8]
+        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8, ArraySubType = UnmanagedType.U4)]
+        public uint[] pad6;
 
         /// void*
         public IntPtr memory_;
@@ -382,7 +416,7 @@ namespace Imazen.WebP.Extern
 
         /// void*[2]
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 2, ArraySubType = UnmanagedType.SysUInt)]
-        public IntPtr[] pad5;
+        public IntPtr[] pad7;
     }
 
 
@@ -489,6 +523,11 @@ namespace Imazen.WebP.Extern
 
         /// Return Type: int
         ///config: WebPConfig*
+        [DllImportAttribute("libwebp", EntryPoint = "WebPConfigLosslessPreset", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int WebPConfigLosslessPreset(ref WebPConfig config);
+
+        /// Return Type: int
+        ///config: WebPConfig*
         [DllImportAttribute("libwebp", EntryPoint = "WebPValidateConfig", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPValidateConfig(ref WebPConfig config);
 
@@ -497,6 +536,11 @@ namespace Imazen.WebP.Extern
         ///writer: WebPMemoryWriter*
         [DllImportAttribute("libwebp", EntryPoint = "WebPMemoryWriterInit", CallingConvention = CallingConvention.Cdecl)]
         public static extern void WebPMemoryWriterInit(ref WebPMemoryWriter writer);
+
+        /// Return Type: void
+        ///writer: WebPMemoryWriter*
+        [DllImportAttribute("libwebp", EntryPoint = "WebPMemoryWriterClear", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void WebPMemoryWriterClear(ref WebPMemoryWriter writer);
 
 
         /// Return Type: int
@@ -542,7 +586,7 @@ namespace Imazen.WebP.Extern
 
         /// <summary>
         /// Compute PSNR, SSIM or LSIM distortion metric between two pictures.
-        /// Result is in dB, stores in result[] in the Y/U/V/Alpha/All order.
+        /// Result is in dB, stores in result[] in the  Y/U/V/Alpha/All or B/G/R/A/All order.
         /// Returns false in case of error (src and ref don't have same dimension, ...)
         /// Warning: this function is rather CPU-intensive.
         /// </summary>
@@ -584,6 +628,9 @@ namespace Imazen.WebP.Extern
         public static extern int WebPPictureIsView(ref WebPPicture picture);
 
 
+        /// Rescale a picture to new dimension width x height.
+        /// ow gamma correction is applied.
+        /// 
         /// Return Type: int
         ///pic: WebPPicture*
         ///width: int
@@ -608,12 +655,17 @@ namespace Imazen.WebP.Extern
         public static extern int WebPPictureImportRGBA(ref WebPPicture picture, [InAttribute()] IntPtr rgba, int rgba_stride);
 
 
-        /// Return Type: int
-        ///picture: WebPPicture*
-        ///rgbx: uint8_t*
-        ///rgbx_stride: int
+        /// Performs 'smart' RGBA->YUVA420 downsampling and colorspace conversion.
+        /// Downsampling is handled with extra care in case of color clipping. This
+        /// method is roughly 2x slower than WebPPictureARGBToYUVA() but produces better
+        /// YUV representation.
+        /// Returns false in case of error.
+        [DllImportAttribute("libwebp", EntryPoint = "WebPPictureSmartARGBToYUVA", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int WebPPictureSmartARGBToYUVA(ref WebPPicture picture);
+
         [DllImportAttribute("libwebp", EntryPoint = "WebPPictureImportRGBX", CallingConvention = CallingConvention.Cdecl)]
         public static extern int WebPPictureImportRGBX(ref WebPPicture picture, [InAttribute()] IntPtr rgbx, int rgbx_stride);
+
 
 
         /// Return Type: int

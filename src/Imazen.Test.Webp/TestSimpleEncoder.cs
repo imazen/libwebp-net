@@ -15,7 +15,7 @@ namespace Imazen.Test.WebP
         [Fact]
         public void TestVersion(){
             Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
-            Assert.Equal("0.4.1",SimpleEncoder.GetEncoderVersion());
+            Assert.Equal("0.5.2",SimpleEncoder.GetEncoderVersion());
         }
         [Fact]
         public void TestEncSimple()

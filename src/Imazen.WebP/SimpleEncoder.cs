@@ -72,7 +72,7 @@ namespace Imazen.WebP {
         }
 
         /// <summary>
-        /// Encodes the given RGB(A) bitmap to the given stream. Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
+        /// Encodes the given RGB(A) bitmap to an unmanged memory buffer (returned via result/length). Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
         /// </summary>
         /// <param name="b"></param>
         /// <param name="quality"></param>
@@ -96,8 +96,10 @@ namespace Imazen.WebP {
                     else length = (long)NativeMethods.WebPEncodeBGR(bd.Scan0, w, h, bd.Stride, quality, ref result);
                 }else
                 {
-                    Bitmap b2 = b.Clone(new Rectangle(0, 0, b.Width, b.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    Encode(b2, quality, out result, out length);
+                    using (Bitmap b2 = b.Clone(new Rectangle(0, 0, b.Width, b.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+                    {
+                        Encode(b2, quality, out result, out length);
+                    }
                 }
                 if (length == 0) throw new Exception("WebP encode failed!");
             } finally {
