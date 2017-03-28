@@ -4,7 +4,7 @@ build_script:
   - ps: '& ".\download_libwebp.ps1"'
   - cmd: build.cmd NuGet
 #test: off
-version: 0.5.2.{build}
+version: 0.6.0.{build}
 artifacts:
   - path: bin
     name: bin
