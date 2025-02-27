@@ -1,5 +1,9 @@
 # libwebp wrapper for .NET
 
+NOTICE: Do NOT use versions of Google's libwebp prior to 1.3.2! 
+
+this project is not maintained; please use [Imageflow.Net](https://github.com/imazen/imageflow) instead to work with webp images. Imageflow is continually updated and secured, and bundles libwebp.
+
 Build status for branch 'master': ![build status](http://img.shields.io/appveyor/ci/imazen/libwebp-net.svg)
 Last nuget release: ![Nuget release version](http://img.shields.io/nuget/v/Imazen.WebP.svg)
 
@@ -20,13 +24,6 @@ This library offers P/Invoke exposure for webp/decode.h and webp/encode.h, but n
 * Animation support
 * Make LoadLibrary cross-platform (although it is not strictly neccessary)
 * Add .NET Core support. This will likely require introducing a PixelBuffer{width, height, ptr, stride} interface that can wrap System.Drawing.Bitmap via adapter. System.Drawing.Bitmap is currently directly used by the `SimpleDecoder` and `SimpleEncoder` classes, but these total < 200 lines of code. Or, leave the core API as P/Invoke only. libwebp doesn't have a bad API at all. 
-
-## Windows builds of libwebp 0.5.2 can be found here:
-
-https://s3.amazonaws.com/resizer-dynamic-downloads/webp/0.5.2/x86_64/libwebp.dll
-https://s3.amazonaws.com/resizer-dynamic-downloads/webp/0.5.2/x86/libwebp.dll
-
-You may need vcruntime14 (VS 2015 C++ Redistributable) https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 This library is binary compatible with as-is NMake builds of libwebp (no custom C/C++).
 
