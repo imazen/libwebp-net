@@ -321,14 +321,12 @@ jobs:
           RELEASE_TAG="native-v${SEMVER}"
           echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
 
-          # Package each platform's native binary
+          # Package each platform's native libraries (all 4: webp, webpmux, webpdemux, sharpyuv)
           mkdir -p release-assets
           for rid_dir in artifacts/native-*; do
             RID=$(basename "$rid_dir" | sed 's/^native-//')
-            FILENAME=$(ls "$rid_dir/" | head -1)
-            # Zip with platform-specific name
             cd "$rid_dir"
-            zip -j "../../release-assets/libwebp-${SEMVER}-${RID}.zip" "$FILENAME"
+            zip -j "../../release-assets/libwebp-${SEMVER}-${RID}.zip" *
             cd ../..
           done
           ls -la release-assets/

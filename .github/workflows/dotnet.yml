@@ -20,11 +20,11 @@ on:
         required: true
         type: string
   push:
-    branches: [main, develop]
+    branches: [master, main, develop]
     paths-ignore:
       - '**.md'
   pull_request:
-    branches: [main, develop]
+    branches: [master, main, develop]
   release:
     types: [published]
 
