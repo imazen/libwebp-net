@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Imazen.WebP.AllPlatforms</PackageId>
+    <Description>Complete WebP encoding/decoding package for .NET — includes managed bindings and native libwebp for all supported platforms.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Imazen.WebP\Imazen.WebP.csproj" />
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.All\Imazen.WebP.NativeRuntime.All.csproj" />
+  </ItemGroup>
+
+</Project>

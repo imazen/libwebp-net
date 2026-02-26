@@ -1,17 +1,24 @@
-Imazen.WebP.dll
-Imazen.WebP.pdb
-Imazen.WebP.xml
-*.FileListAbsolute.txt
-*.cache
 bin/
 obj/
 *.suo
-packages/**/*
-.paket/paket.exe
-paket-files
+*.user
+*.cache
+*.FileListAbsolute.txt
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Build artifacts
 .fake
-docs/content/license.md
-docs/content/release-notes.md
 docs/output/
-*.dll
-src/Imazen.Test.Webp/Imazen.Test.Webp.csproj.user
+
+# Native binaries (downloaded by CI)
+src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/*.dll
+src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/*.so
+src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/*.dylib
+
+# IDE
+.vs/
+.idea/
+*.DotSettings.user

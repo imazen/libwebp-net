@@ -1,0 +1,370 @@
+name: Build libwebp native binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      libwebp_tag:
+        description: 'libwebp tag to build (e.g., v1.6.0). Leave empty for latest.'
+        required: false
+        type: string
+  schedule:
+    # Weekly check for new libwebp releases — Monday 06:00 UTC
+    - cron: '0 6 * * 1'
+  push:
+    tags:
+      - 'native-v*'
+
+permissions:
+  contents: write
+
+env:
+  # Default libwebp version — overridden by tag or latest release
+  LIBWEBP_DEFAULT_TAG: v1.6.0
+
+jobs:
+  resolve-version:
+    runs-on: ubuntu-latest
+    outputs:
+      libwebp_tag: ${{ steps.resolve.outputs.tag }}
+      libwebp_semver: ${{ steps.resolve.outputs.semver }}
+      is_new_release: ${{ steps.check.outputs.is_new }}
+    steps:
+      - name: Resolve libwebp version
+        id: resolve
+        run: |
+          if [ -n "${{ inputs.libwebp_tag }}" ]; then
+            TAG="${{ inputs.libwebp_tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/native-v* ]]; then
+            TAG="v${GITHUB_REF#refs/tags/native-v}"
+          else
+            # Fetch latest release tag from webmproject/libwebp
+            TAG=$(curl -sL https://api.github.com/repos/webmproject/libwebp/releases/latest | jq -r '.tag_name')
+            if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then
+              TAG="${LIBWEBP_DEFAULT_TAG}"
+            fi
+          fi
+          SEMVER="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "semver=${SEMVER}" >> "$GITHUB_OUTPUT"
+          echo "Resolved libwebp version: ${TAG} (semver: ${SEMVER})"
+
+      - name: Check if this version already has a release
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.resolve.outputs.tag }}"
+          SEMVER="${{ steps.resolve.outputs.semver }}"
+          RELEASE_TAG="native-v${SEMVER}"
+
+          # Check if a GitHub release with this tag already exists
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}")
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "Release ${RELEASE_TAG} already exists"
+            echo "is_new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Release ${RELEASE_TAG} does not exist — will build"
+            echo "is_new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-native:
+    needs: resolve-version
+    # Skip if scheduled run and release already exists
+    if: needs.resolve-version.outputs.is_new_release == 'true' || github.event_name != 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            cmake_arch: x64
+            lib_ext: dll
+          - os: windows-latest
+            rid: win-x86
+            cmake_arch: Win32
+            lib_ext: dll
+          - os: windows-11-arm
+            rid: win-arm64
+            lib_ext: dll
+          - os: ubuntu-latest
+            rid: linux-x64
+            lib_ext: so
+          - os: ubuntu-24.04-arm
+            rid: linux-arm64
+            lib_ext: so
+          - os: macos-latest
+            rid: osx-arm64
+            lib_ext: dylib
+          - os: macos-13
+            rid: osx-x64
+            lib_ext: dylib
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout libwebp-net
+        uses: actions/checkout@v4
+
+      - name: Clone libwebp source
+        run: |
+          git clone --depth 1 --branch ${{ needs.resolve-version.outputs.libwebp_tag }} \
+            https://github.com/webmproject/libwebp.git libwebp-src
+
+      - name: Build libwebp (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd libwebp-src
+          mkdir build && cd build
+          $cmakeArgs = @(
+            "..",
+            "-DBUILD_SHARED_LIBS=ON",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DWEBP_BUILD_ANIM_UTILS=OFF",
+            "-DWEBP_BUILD_CWEBP=OFF",
+            "-DWEBP_BUILD_DWEBP=OFF",
+            "-DWEBP_BUILD_GIF2WEBP=OFF",
+            "-DWEBP_BUILD_IMG2WEBP=OFF",
+            "-DWEBP_BUILD_VWEBP=OFF",
+            "-DWEBP_BUILD_WEBPINFO=OFF",
+            "-DWEBP_BUILD_WEBPMUX=OFF",
+            "-DWEBP_BUILD_EXTRAS=OFF"
+          )
+          # Use -A flag only when cmake_arch is specified (x64/Win32 cross-compile)
+          if ("${{ matrix.cmake_arch }}") {
+            $cmakeArgs += "-A"
+            $cmakeArgs += "${{ matrix.cmake_arch }}"
+          }
+          cmake @cmakeArgs
+          cmake --build . --config Release
+
+      - name: Build libwebp (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd libwebp-src
+          mkdir build && cd build
+          cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
+            -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF -DWEBP_BUILD_VWEBP=OFF \
+            -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_EXTRAS=OFF
+          cmake --build . --config Release
+
+      - name: Locate and copy built libraries
+        shell: bash
+        run: |
+          RID="${{ matrix.rid }}"
+          EXT="${{ matrix.lib_ext }}"
+          DEST="src/Imazen.WebP.NativeRuntime.${RID}/runtimes/${RID}/native/"
+          mkdir -p "$DEST"
+
+          # Libraries to find: libwebp, libwebpmux, libwebpdemux, libsharpyuv
+          LIBS_FOUND=0
+          for LIB_BASE in webp webpmux webpdemux sharpyuv; do
+            # Search for the library (handles both lib-prefixed and non-prefixed names)
+            BUILT=$(find libwebp-src/build -name "lib${LIB_BASE}.${EXT}" -not -path '*/CMakeFiles/*' 2>/dev/null | head -1)
+            if [ -z "$BUILT" ]; then
+              BUILT=$(find libwebp-src/build -name "${LIB_BASE}.${EXT}" -not -path '*/CMakeFiles/*' 2>/dev/null | head -1)
+            fi
+            if [ -n "$BUILT" ]; then
+              # Normalize to lib-prefixed name for consistency
+              TARGET_NAME="lib${LIB_BASE}.${EXT}"
+              echo "Found ${LIB_BASE}: $BUILT → $DEST/$TARGET_NAME"
+              cp "$BUILT" "$DEST/$TARGET_NAME"
+              LIBS_FOUND=$((LIBS_FOUND + 1))
+            else
+              echo "WARNING: Could not find ${LIB_BASE}.${EXT} in build output"
+            fi
+          done
+
+          if [ "$LIBS_FOUND" -lt 1 ]; then
+            echo "ERROR: No libraries found in build output!"
+            find libwebp-src/build -type f -name "*.${EXT}" 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "Copied $LIBS_FOUND libraries to $DEST"
+          ls -la "$DEST"
+
+      - name: Build and run ABI check tool
+        if: matrix.rid != 'win-x86'
+        shell: bash
+        run: |
+          RID="${{ matrix.rid }}"
+          CC="${CC:-cc}"
+
+          # Compile abi_check.c against the libwebp we just built
+          INCLUDE_DIR="libwebp-src/src"
+          BUILD_DIR="libwebp-src/build"
+
+          # Find library paths for linking
+          WEBP_LIB=$(find "$BUILD_DIR" -name "libwebp.*" -not -path '*/CMakeFiles/*' | head -1)
+          MUX_LIB=$(find "$BUILD_DIR" -name "libwebpmux.*" -not -path '*/CMakeFiles/*' | head -1)
+          DEMUX_LIB=$(find "$BUILD_DIR" -name "libwebpdemux.*" -not -path '*/CMakeFiles/*' | head -1)
+          LIB_DIR=$(dirname "$WEBP_LIB")
+
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            # On Windows, use the import libs
+            WEBP_IMPLIB=$(find "$BUILD_DIR" -name "webp.lib" -not -path '*/CMakeFiles/*' 2>/dev/null | head -1)
+            if [ -z "$WEBP_IMPLIB" ]; then
+              echo "Skipping ABI check on Windows (no import libs found)"
+              exit 0
+            fi
+            LIB_DIR=$(dirname "$WEBP_IMPLIB")
+          fi
+
+          $CC -o abi_check tools/abi_check.c \
+            -I"$INCLUDE_DIR" \
+            -L"$LIB_DIR" \
+            -lwebp -lwebpmux -lwebpdemux \
+            -Wl,-rpath,"$LIB_DIR" 2>/dev/null || {
+            echo "Failed to compile abi_check.c — skipping"
+            exit 0
+          }
+
+          # Run it
+          export LD_LIBRARY_PATH="$LIB_DIR:${LD_LIBRARY_PATH:-}"
+          export DYLD_LIBRARY_PATH="$LIB_DIR:${DYLD_LIBRARY_PATH:-}"
+
+          mkdir -p artifacts
+          ./abi_check > "artifacts/abi-metadata-${RID}.json"
+          echo "ABI metadata for ${RID}:"
+          cat "artifacts/abi-metadata-${RID}.json"
+
+      - name: Upload ABI metadata
+        if: matrix.rid != 'win-x86'
+        uses: actions/upload-artifact@v4
+        with:
+          name: abi-metadata-${{ matrix.rid }}
+          path: artifacts/abi-metadata-*.json
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload native artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.rid }}
+          path: src/Imazen.WebP.NativeRuntime.${{ matrix.rid }}/runtimes/${{ matrix.rid }}/native/
+          retention-days: 30
+
+  create-release:
+    needs: [resolve-version, build-native]
+    if: needs.resolve-version.outputs.is_new_release == 'true' || github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.tag.outputs.release_tag }}
+    steps:
+      - name: Download all native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: ABI major version gate
+        shell: bash
+        run: |
+          # Check if any ABI metadata files exist
+          ABI_FILES=$(find artifacts -name 'abi-metadata-*.json' 2>/dev/null)
+          if [ -z "$ABI_FILES" ]; then
+            echo "No ABI metadata found — skipping version gate"
+            exit 0
+          fi
+
+          # Expected ABI major versions from our Constants.cs
+          EXPECTED_ENCODER_MAJOR=2   # 0x02xx
+          EXPECTED_DECODER_MAJOR=2   # 0x02xx
+          EXPECTED_MUX_MAJOR=1       # 0x01xx
+          EXPECTED_DEMUX_MAJOR=1     # 0x01xx
+
+          FAILED=0
+          for f in $ABI_FILES; do
+            echo "Checking $f..."
+
+            # Extract ABI hex values and compute major (high byte)
+            ENCODER_ABI=$(python3 -c "import json; d=json.load(open('$f')); print(int(d['encoder_abi'],16)>>8)")
+            DECODER_ABI=$(python3 -c "import json; d=json.load(open('$f')); print(int(d['decoder_abi'],16)>>8)")
+            MUX_ABI=$(python3 -c "import json; d=json.load(open('$f')); print(int(d['mux_abi'],16)>>8)")
+            DEMUX_ABI=$(python3 -c "import json; d=json.load(open('$f')); print(int(d['demux_abi'],16)>>8)")
+
+            if [ "$ENCODER_ABI" != "$EXPECTED_ENCODER_MAJOR" ]; then
+              echo "::error::ABI MAJOR BREAK in $f: encoder major=$ENCODER_ABI, expected=$EXPECTED_ENCODER_MAJOR"
+              FAILED=1
+            fi
+            if [ "$DECODER_ABI" != "$EXPECTED_DECODER_MAJOR" ]; then
+              echo "::error::ABI MAJOR BREAK in $f: decoder major=$DECODER_ABI, expected=$EXPECTED_DECODER_MAJOR"
+              FAILED=1
+            fi
+            if [ "$MUX_ABI" != "$EXPECTED_MUX_MAJOR" ]; then
+              echo "::error::ABI MAJOR BREAK in $f: mux major=$MUX_ABI, expected=$EXPECTED_MUX_MAJOR"
+              FAILED=1
+            fi
+            if [ "$DEMUX_ABI" != "$EXPECTED_DEMUX_MAJOR" ]; then
+              echo "::error::ABI MAJOR BREAK in $f: demux major=$DEMUX_ABI, expected=$EXPECTED_DEMUX_MAJOR"
+              FAILED=1
+            fi
+
+            echo "  encoder_major=$ENCODER_ABI decoder_major=$DECODER_ABI mux_major=$MUX_ABI demux_major=$DEMUX_ABI"
+          done
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error::ABI major version changed! This is a breaking change. Release blocked."
+            echo "Update Constants.cs, Mux.cs, and Demux.cs ABI version constants, then re-run."
+            exit 1
+          fi
+
+          echo "ABI major version gate passed"
+
+      - name: Prepare release assets
+        id: tag
+        run: |
+          SEMVER="${{ needs.resolve-version.outputs.libwebp_semver }}"
+          RELEASE_TAG="native-v${SEMVER}"
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+
+          # Package each platform's native binary
+          mkdir -p release-assets
+          for rid_dir in artifacts/native-*; do
+            RID=$(basename "$rid_dir" | sed 's/^native-//')
+            FILENAME=$(ls "$rid_dir/" | head -1)
+            # Zip with platform-specific name
+            cd "$rid_dir"
+            zip -j "../../release-assets/libwebp-${SEMVER}-${RID}.zip" "$FILENAME"
+            cd ../..
+          done
+          ls -la release-assets/
+
+      - name: Create GitHub Release with native binaries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SEMVER="${{ needs.resolve-version.outputs.libwebp_semver }}"
+          RELEASE_TAG="native-v${SEMVER}"
+          LIBWEBP_TAG="${{ needs.resolve-version.outputs.libwebp_tag }}"
+
+          gh release create "$RELEASE_TAG" \
+            --repo "${{ github.repository }}" \
+            --title "libwebp ${SEMVER} native binaries" \
+            --notes "Pre-built native libwebp ${SEMVER} shared libraries for all supported platforms.
+
+Built from [webmproject/libwebp@${LIBWEBP_TAG}](https://github.com/webmproject/libwebp/releases/tag/${LIBWEBP_TAG}).
+
+## Platforms
+| Platform | File |
+|----------|------|
+| Windows x64 | libwebp-${SEMVER}-win-x64.zip |
+| Windows x86 | libwebp-${SEMVER}-win-x86.zip |
+| Windows arm64 | libwebp-${SEMVER}-win-arm64.zip |
+| Linux x64 | libwebp-${SEMVER}-linux-x64.zip |
+| Linux arm64 | libwebp-${SEMVER}-linux-arm64.zip |
+| macOS x64 | libwebp-${SEMVER}-osx-x64.zip |
+| macOS arm64 | libwebp-${SEMVER}-osx-arm64.zip |" \
+            release-assets/*.zip
+
+  trigger-dotnet-build:
+    needs: [resolve-version, create-release]
+    if: needs.resolve-version.outputs.is_new_release == 'true' || github.event_name != 'schedule'
+    uses: ./.github/workflows/dotnet.yml
+    with:
+      libwebp_version: ${{ needs.resolve-version.outputs.libwebp_semver }}
+      native_release_tag: ${{ needs.create-release.outputs.release_tag }}
+    secrets: inherit

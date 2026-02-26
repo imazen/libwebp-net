@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Imazen.WebP.NativeRuntime.All</PackageId>
+    <Description>Meta-package containing native libwebp binaries for all supported platforms (win-x64, win-x86, win-arm64, linux-x64, linux-arm64, osx-x64, osx-arm64).</Description>
+  </PropertyGroup>
+
+  <!-- Version from LIBWEBP_VERSION env var (set by CI), defaults to Directory.Build.props -->
+  <PropertyGroup Condition="'$(LIBWEBP_VERSION)' != ''">
+    <Version>$(LIBWEBP_VERSION)</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.win-x64\Imazen.WebP.NativeRuntime.win-x64.csproj" />
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.win-x86\Imazen.WebP.NativeRuntime.win-x86.csproj" />
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.win-arm64\Imazen.WebP.NativeRuntime.win-arm64.csproj" />
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.linux-x64\Imazen.WebP.NativeRuntime.linux-x64.csproj" />
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.linux-arm64\Imazen.WebP.NativeRuntime.linux-arm64.csproj" />
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.osx-x64\Imazen.WebP.NativeRuntime.osx-x64.csproj" />
+    <ProjectReference Include="..\Imazen.WebP.NativeRuntime.osx-arm64\Imazen.WebP.NativeRuntime.osx-arm64.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <PackageId>Imazen.WebP.NativeRuntime.linux-arm64</PackageId>
+    <Description>Native libwebp binaries for linux-arm64. Install Imazen.WebP.AllPlatforms for the complete package.</Description>
+  </PropertyGroup>
+
+  <!-- Version from LIBWEBP_VERSION env var (set by CI), defaults to Directory.Build.props -->
+  <PropertyGroup Condition="'$(LIBWEBP_VERSION)' != ''">
+    <Version>$(LIBWEBP_VERSION)</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Native binaries -->
+    <Content Include="runtimes/linux-arm64/native/*" PackagePath="runtimes/linux-arm64/native/" Pack="true" />
+
+    <!-- Placeholder libs so NuGet recognizes framework compatibility -->
+    <Content Include="lib/net48/_._" PackagePath="lib/net48/_._" Pack="true" />
+    <Content Include="lib/netstandard2.0/_._" PackagePath="lib/netstandard2.0/_._" Pack="true" />
+
+    <!-- MSBuild targets for .NET Framework copy-to-output -->
+    <Content Include="build/**" PackagePath="build/" Pack="true" />
+    <Content Include="buildTransitive/**" PackagePath="buildTransitive/" Pack="true" />
+  </ItemGroup>
+
+</Project>

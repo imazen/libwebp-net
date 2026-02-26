@@ -1,0 +1,351 @@
+name: .NET Build, Test & Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      libwebp_version:
+        description: 'libwebp semver for native packages (e.g., 1.6.0)'
+        required: false
+        type: string
+      native_release_tag:
+        description: 'GitHub release tag to download native binaries from'
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      libwebp_version:
+        required: true
+        type: string
+      native_release_tag:
+        required: true
+        type: string
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches: [main, develop]
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows x64 — all frameworks
+          - os: windows-latest
+            rid: win-x64
+            test_frameworks: 'net472;net48;net8.0;net10.0'
+            arch: x64
+
+          # Windows x86 (32-bit) — .NET Framework + net8.0
+          - os: windows-latest
+            rid: win-x86
+            test_frameworks: 'net472;net48;net8.0'
+            arch: x86
+            run_settings: '<RunSettings><RunConfiguration><TargetPlatform>x86</TargetPlatform></RunConfiguration></RunSettings>'
+
+          # Windows ARM64
+          - os: windows-11-arm
+            rid: win-arm64
+            test_frameworks: 'net8.0;net10.0'
+            arch: arm64
+
+          # Linux x64
+          - os: ubuntu-latest
+            rid: linux-x64
+            test_frameworks: 'net8.0;net10.0'
+            arch: x64
+
+          # Linux ARM64
+          - os: ubuntu-24.04-arm
+            rid: linux-arm64
+            test_frameworks: 'net8.0;net10.0'
+            arch: arm64
+
+          # macOS ARM64
+          - os: macos-latest
+            rid: osx-arm64
+            test_frameworks: 'net8.0;net10.0'
+            arch: arm64
+
+          # macOS x64
+          - os: macos-13
+            rid: osx-x64
+            test_frameworks: 'net8.0;net10.0'
+            arch: x64
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Determine native release tag
+        id: native
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.native_release_tag }}" ]; then
+            echo "tag=${{ inputs.native_release_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            # Find the latest native-v* release
+            TAG=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases" | \
+              jq -r '[.[] | select(.tag_name | startswith("native-v"))][0].tag_name // empty')
+            if [ -z "$TAG" ]; then
+              echo "No native release found — tests will rely on local DLLs"
+              echo "tag=" >> "$GITHUB_OUTPUT"
+            else
+              echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Download native binaries from GitHub release
+        if: steps.native.outputs.tag != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.native.outputs.tag }}"
+          SEMVER="${TAG#native-v}"
+
+          # Determine which RIDs to download for this runner
+          case "${{ runner.os }}-${{ runner.arch }}" in
+            Windows-X64) RIDS="win-x64 win-x86 win-arm64" ;;
+            Windows-ARM64) RIDS="win-arm64" ;;
+            Linux-X64) RIDS="linux-x64" ;;
+            Linux-ARM64) RIDS="linux-arm64" ;;
+            macOS-ARM64) RIDS="osx-arm64" ;;
+            macOS-X64) RIDS="osx-x64" ;;
+            *) RIDS="" ;;
+          esac
+
+          for RID in $RIDS; do
+            DEST="src/Imazen.WebP.NativeRuntime.${RID}/runtimes/${RID}/native/"
+            mkdir -p "$DEST"
+            gh release download "$TAG" \
+              --repo "${{ github.repository }}" \
+              --pattern "libwebp-${SEMVER}-${RID}.zip" \
+              --dir /tmp/native-dl/
+            unzip -o "/tmp/native-dl/libwebp-${SEMVER}-${RID}.zip" -d "$DEST"
+            ls -la "$DEST"
+          done
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Create .runsettings for x86
+        if: matrix.run_settings != ''
+        shell: bash
+        run: |
+          cat > test.runsettings <<'SETTINGS'
+          <?xml version="1.0" encoding="utf-8"?>
+          ${{ matrix.run_settings }}
+          SETTINGS
+
+      - name: Test (x86 with runsettings)
+        if: matrix.run_settings != ''
+        shell: bash
+        run: |
+          IFS=';' read -ra FRAMEWORKS <<< "${{ matrix.test_frameworks }}"
+          for fw in "${FRAMEWORKS[@]}"; do
+            echo "::group::Testing $fw (x86)"
+            dotnet test --configuration Release --no-build --verbosity normal \
+              -f "$fw" --settings test.runsettings
+            echo "::endgroup::"
+          done
+        env:
+          DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
+
+      - name: Test
+        if: matrix.run_settings == ''
+        shell: bash
+        run: |
+          IFS=';' read -ra FRAMEWORKS <<< "${{ matrix.test_frameworks }}"
+          for fw in "${FRAMEWORKS[@]}"; do
+            echo "::group::Testing $fw"
+            dotnet test --configuration Release --no-build --verbosity normal -f "$fw"
+            echo "::endgroup::"
+          done
+        env:
+          DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
+
+  # Windows heap corruption detection via PageHeap
+  heap-validation:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Determine native release tag
+        id: native
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.native_release_tag }}" ]; then
+            echo "tag=${{ inputs.native_release_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            TAG=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases" | \
+              jq -r '[.[] | select(.tag_name | startswith("native-v"))][0].tag_name // empty')
+            echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download native binaries
+        if: steps.native.outputs.tag != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.native.outputs.tag }}"
+          SEMVER="${TAG#native-v}"
+          for RID in win-x64 win-x86; do
+            DEST="src/Imazen.WebP.NativeRuntime.${RID}/runtimes/${RID}/native/"
+            mkdir -p "$DEST"
+            gh release download "$TAG" \
+              --repo "${{ github.repository }}" \
+              --pattern "libwebp-${SEMVER}-${RID}.zip" \
+              --dir /tmp/native-dl/
+            unzip -o "/tmp/native-dl/libwebp-${SEMVER}-${RID}.zip" -d "$DEST"
+          done
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Enable PageHeap for test host
+        shell: pwsh
+        run: |
+          # Enable full page heap for the test host processes
+          # This catches buffer overruns, use-after-free, double-free in native code
+          $regBase = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options"
+          foreach ($exe in @("testhost.exe", "testhost.x86.exe")) {
+            $regPath = "$regBase\$exe"
+            if (-not (Test-Path $regPath)) {
+              New-Item -Path $regPath -Force | Out-Null
+            }
+            # 0x02000000 = FLG_HEAP_PAGE_ALLOCS
+            New-ItemProperty -Path $regPath -Name "GlobalFlag" -Value 0x02000000 -PropertyType DWord -Force | Out-Null
+            # 0x3 = full page heap
+            New-ItemProperty -Path $regPath -Name "PageHeapFlags" -Value 0x3 -PropertyType DWord -Force | Out-Null
+            Write-Host "Enabled PageHeap for $exe"
+          }
+
+      - name: Run tests with PageHeap
+        run: dotnet test --configuration Release --no-build --verbosity normal -f net8.0
+        env:
+          DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
+
+  pack-and-publish:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || (github.event_name == 'workflow_call' && inputs.libwebp_version != '')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Determine versions
+        id: versions
+        shell: bash
+        run: |
+          # .NET API version from git tag (release event) or Directory.Build.props
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            API_VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            API_VERSION=""
+          fi
+          echo "api_version=${API_VERSION}" >> "$GITHUB_OUTPUT"
+
+          # Native package version from input
+          NATIVE_VERSION="${{ inputs.libwebp_version }}"
+          echo "native_version=${NATIVE_VERSION}" >> "$GITHUB_OUTPUT"
+
+          echo "API version: ${API_VERSION:-<from Directory.Build.props>}"
+          echo "Native package version: ${NATIVE_VERSION:-<from Directory.Build.props>}"
+
+      - name: Download all native binaries
+        if: inputs.native_release_tag != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ inputs.native_release_tag }}"
+          SEMVER="${TAG#native-v}"
+
+          for RID in win-x64 win-x86 win-arm64 linux-x64 linux-arm64 osx-x64 osx-arm64; do
+            DEST="src/Imazen.WebP.NativeRuntime.${RID}/runtimes/${RID}/native/"
+            mkdir -p "$DEST"
+            gh release download "$TAG" \
+              --repo "${{ github.repository }}" \
+              --pattern "libwebp-${SEMVER}-${RID}.zip" \
+              --dir /tmp/native-dl/
+            unzip -o "/tmp/native-dl/libwebp-${SEMVER}-${RID}.zip" -d "$DEST"
+          done
+
+      - name: Pack managed packages
+        run: |
+          API_VERSION="${{ steps.versions.outputs.api_version }}"
+          EXTRA_ARGS=""
+          if [ -n "$API_VERSION" ]; then
+            EXTRA_ARGS="-p:Version=${API_VERSION}"
+          fi
+          dotnet pack src/Imazen.WebP/Imazen.WebP.csproj --configuration Release $EXTRA_ARGS -o packages/
+
+      - name: Pack native runtime packages
+        run: |
+          NATIVE_VERSION="${{ steps.versions.outputs.native_version }}"
+          EXTRA_ARGS=""
+          if [ -n "$NATIVE_VERSION" ]; then
+            EXTRA_ARGS="-p:Version=${NATIVE_VERSION}"
+          fi
+
+          for RID in win-x64 win-x86 win-arm64 linux-x64 linux-arm64 osx-x64 osx-arm64; do
+            dotnet pack "src/Imazen.WebP.NativeRuntime.${RID}/Imazen.WebP.NativeRuntime.${RID}.csproj" \
+              --configuration Release $EXTRA_ARGS -o packages/
+          done
+
+          dotnet pack src/Imazen.WebP.NativeRuntime.All/Imazen.WebP.NativeRuntime.All.csproj \
+            --configuration Release $EXTRA_ARGS -o packages/
+
+          dotnet pack src/Imazen.WebP.AllPlatforms/Imazen.WebP.AllPlatforms.csproj \
+            --configuration Release $EXTRA_ARGS -o packages/
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages/*.nupkg
+          retention-days: 30
+
+      - name: Publish to NuGet.org
+        if: github.event_name == 'release'
+        run: |
+          for PKG in packages/*.nupkg; do
+            dotnet nuget push "$PKG" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done

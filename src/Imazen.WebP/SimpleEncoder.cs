@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
+using System;
 using System.Drawing;
-using Imazen.WebP.Extern;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
+using Imazen.WebP.Extern;
 
 namespace Imazen.WebP {
     /// <summary>
@@ -15,7 +14,8 @@ namespace Imazen.WebP {
 
         public static string GetEncoderVersion()
         {
-            uint v = (uint)NativeMethods.WebPGetEncoderVersion();
+            uint v = (uint)NativeLibraryLoader.FixDllNotFoundException("webp",
+                () => NativeMethods.WebPGetEncoderVersion())!;
             var revision = v % 256;
             var minor = (v >> 8) % 256;
             var major = (v >> 16) % 256;
@@ -25,11 +25,7 @@ namespace Imazen.WebP {
         /// <summary>
         /// Encodes the given RGB(A) bitmap to the given stream. Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
         /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="quality"></param>
-        /// <param name="noAlpha"></param>
-        [Obsolete]
+        [Obsolete("Use Encode(Bitmap, Stream, float) instead")]
         public void Encode(Bitmap from, Stream to, float quality, bool noAlpha) {
             Encode(from, to, quality);
         }
@@ -37,9 +33,6 @@ namespace Imazen.WebP {
         /// <summary>
         /// Encodes the given RGB(A) bitmap to the given stream. Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
         /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="quality"></param>
         public void Encode(Bitmap from, Stream to, float quality) {
             IntPtr result;
             long length;
@@ -55,48 +48,52 @@ namespace Imazen.WebP {
             } finally {
                 NativeMethods.WebPSafeFree(result);
             }
-
         }
 
         /// <summary>
-        /// Encodes the given RGB(A) bitmap to the given stream. Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
+        /// Encodes the given RGB(A) bitmap to an unmanaged memory buffer.
+        /// Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
         /// </summary>
-        /// <param name="b"></param>
-        /// <param name="quality"></param>
-        /// <param name="noAlpha"></param>
-        /// <param name="result"></param>
-        /// <param name="length"></param>
-        [Obsolete]
+        [Obsolete("Use Encode(Bitmap, float, out IntPtr, out long) instead")]
         public void Encode(Bitmap b, float quality, bool noAlpha, out IntPtr result, out long length) {
             Encode(b, quality, out result, out length);
         }
 
         /// <summary>
-        /// Encodes the given RGB(A) bitmap to an unmanged memory buffer (returned via result/length). Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
+        /// Encodes the given RGB(A) bitmap to an unmanaged memory buffer.
+        /// Specify quality = -1 for lossless, otherwise specify a value between 0 and 100.
         /// </summary>
-        /// <param name="b"></param>
-        /// <param name="quality"></param>
-        /// <param name="result"></param>
-        /// <param name="length"></param>
         public void Encode(Bitmap b, float quality, out IntPtr result, out long length) {
             if (quality < -1) quality = -1;
             if (quality > 100) quality = 100;
             int w = b.Width;
             int h = b.Height;
-            var bd = b.LockBits(new Rectangle(0, 0, w, h), System.Drawing.Imaging.ImageLockMode.ReadOnly, b.PixelFormat);
+            var bd = b.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadOnly, b.PixelFormat);
             try {
                 result = IntPtr.Zero;
+                IntPtr scan0 = bd.Scan0;
+                int stride = bd.Stride;
 
-                if (b.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb) {
-                    if (quality == -1) length = (long)NativeMethods.WebPEncodeLosslessBGRA(bd.Scan0, w, h, bd.Stride, ref result);
-                    else length = (long)NativeMethods.WebPEncodeBGRA(bd.Scan0, w, h, bd.Stride, quality, ref result);
-                }else if (b.PixelFormat == System.Drawing.Imaging.PixelFormat.Format24bppRgb)
-                {
-                    if (quality == -1) length = (long)NativeMethods.WebPEncodeLosslessBGR(bd.Scan0, w, h, bd.Stride, ref result);
-                    else length = (long)NativeMethods.WebPEncodeBGR(bd.Scan0, w, h, bd.Stride, quality, ref result);
-                }else
-                {
-                    using (Bitmap b2 = b.Clone(new Rectangle(0, 0, b.Width, b.Height), System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+                if (b.PixelFormat == PixelFormat.Format32bppArgb) {
+                    IntPtr res = IntPtr.Zero;
+                    if (quality == -1)
+                        length = (long)NativeLibraryLoader.FixDllNotFoundException("webp",
+                            () => NativeMethods.WebPEncodeLosslessBGRA(scan0, w, h, stride, ref res))!;
+                    else
+                        length = (long)NativeLibraryLoader.FixDllNotFoundException("webp",
+                            () => NativeMethods.WebPEncodeBGRA(scan0, w, h, stride, quality, ref res))!;
+                    result = res;
+                } else if (b.PixelFormat == PixelFormat.Format24bppRgb) {
+                    IntPtr res = IntPtr.Zero;
+                    if (quality == -1)
+                        length = (long)NativeLibraryLoader.FixDllNotFoundException("webp",
+                            () => NativeMethods.WebPEncodeLosslessBGR(scan0, w, h, stride, ref res))!;
+                    else
+                        length = (long)NativeLibraryLoader.FixDllNotFoundException("webp",
+                            () => NativeMethods.WebPEncodeBGR(scan0, w, h, stride, quality, ref res))!;
+                    result = res;
+                } else {
+                    using (Bitmap b2 = b.Clone(new Rectangle(0, 0, b.Width, b.Height), PixelFormat.Format32bppArgb))
                     {
                         Encode(b2, quality, out result, out length);
                     }
@@ -104,6 +101,55 @@ namespace Imazen.WebP {
                 if (length == 0) throw new Exception("WebP encode failed!");
             } finally {
                 b.UnlockBits(bd);
+            }
+        }
+
+        /// <summary>
+        /// Encodes the given RGB(A) bitmap using advanced WebPEncoderConfig settings.
+        /// Uses the full WebPPicture/WebPConfig pipeline for maximum control.
+        /// </summary>
+        public void Encode(Bitmap b, Stream to, WebPEncoderConfig config)
+        {
+            if (b == null) throw new ArgumentNullException(nameof(b));
+            if (to == null) throw new ArgumentNullException(nameof(to));
+            if (config == null) throw new ArgumentNullException(nameof(config));
+
+            int w = b.Width;
+            int h = b.Height;
+
+            // Ensure we have a compatible pixel format
+            Bitmap source = b;
+            bool ownsSource = false;
+            if (b.PixelFormat != PixelFormat.Format32bppArgb && b.PixelFormat != PixelFormat.Format24bppRgb)
+            {
+                source = b.Clone(new Rectangle(0, 0, b.Width, b.Height), PixelFormat.Format32bppArgb);
+                ownsSource = true;
+            }
+
+            try
+            {
+                var bd = source.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadOnly, source.PixelFormat);
+                try
+                {
+                    int bpp = source.PixelFormat == PixelFormat.Format24bppRgb ? 3 : 4;
+                    int stride = bd.Stride;
+                    byte[] pixels = new byte[Math.Abs(stride) * h];
+                    Marshal.Copy(bd.Scan0, pixels, 0, pixels.Length);
+
+                    WebPPixelFormat fmt = source.PixelFormat == PixelFormat.Format24bppRgb
+                        ? WebPPixelFormat.Bgr
+                        : WebPPixelFormat.Bgra;
+
+                    WebPEncoder.Encode(pixels, w, h, Math.Abs(stride), fmt, config, to);
+                }
+                finally
+                {
+                    source.UnlockBits(bd);
+                }
+            }
+            finally
+            {
+                if (ownsSource) source.Dispose();
             }
         }
     }

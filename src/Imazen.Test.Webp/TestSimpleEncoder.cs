@@ -1,45 +1,111 @@
-﻿using System;
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using Xunit;
 using Imazen.WebP;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Drawing;
-using Imazen.WebP.Extern;
 
 namespace Imazen.Test.WebP
 {
     public class TestSimpleEncoder
     {
         [Fact]
-        public void TestVersion(){
-            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
-            Assert.Equal("0.6.0",SimpleEncoder.GetEncoderVersion());
-        }
-        [Fact]
-        public void TestEncSimple()
+        public void TestEncoderVersionNotNull()
         {
-            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
+            var version = SimpleEncoder.GetEncoderVersion();
+            Assert.NotNull(version);
+            Assert.NotEmpty(version);
+            Assert.Contains(".", version);
+        }
 
+        [Fact]
+        public void TestEncodeJpegToWebP()
+        {
             var encoder = new SimpleEncoder();
             var fileName = "testimage.jpg";
-            var outFileName = "testimageout.webp";
-            File.Delete(outFileName);
+            Assert.True(File.Exists(fileName), $"Test image not found: {fileName}");
 
-            Bitmap mBitmap;
-            FileStream outStream = new FileStream(outFileName, FileMode.Create);
-            using (Stream BitmapStream = System.IO.File.Open(fileName, System.IO.FileMode.Open))
+            using (var bitmapStream = File.Open(fileName, FileMode.Open))
+            using (var img = Image.FromStream(bitmapStream))
+            using (var bitmap = new Bitmap(img))
+            using (var outStream = new MemoryStream())
             {
-                Image img = Image.FromStream(BitmapStream);
+                encoder.Encode(bitmap, outStream, 80);
+                Assert.True(outStream.Length > 0, "Encoded WebP should have non-zero length");
 
-                mBitmap = new Bitmap(img);
-
-                encoder.Encode(mBitmap, outStream, 100);
+                // Verify it starts with RIFF header
+                var bytes = outStream.ToArray();
+                Assert.True(bytes.Length >= 12);
+                Assert.Equal((byte)'R', bytes[0]);
+                Assert.Equal((byte)'I', bytes[1]);
+                Assert.Equal((byte)'F', bytes[2]);
+                Assert.Equal((byte)'F', bytes[3]);
             }
+        }
 
-            FileInfo finfo = new FileInfo(outFileName);
-            Assert.True(finfo.Exists);
+        [Theory]
+        [InlineData(0)]
+        [InlineData(50)]
+        [InlineData(75)]
+        [InlineData(100)]
+        public void TestEncodeAtVariousQualities(float quality)
+        {
+            var encoder = new SimpleEncoder();
+            using (var bitmap = new Bitmap(64, 64, PixelFormat.Format32bppArgb))
+            using (var outStream = new MemoryStream())
+            {
+                using (var g = Graphics.FromImage(bitmap))
+                    g.Clear(Color.CornflowerBlue);
+
+                encoder.Encode(bitmap, outStream, quality);
+                Assert.True(outStream.Length > 0);
+            }
+        }
+
+        [Fact]
+        public void TestLosslessEncode()
+        {
+            var encoder = new SimpleEncoder();
+            using (var bitmap = new Bitmap(32, 32, PixelFormat.Format32bppArgb))
+            using (var outStream = new MemoryStream())
+            {
+                using (var g = Graphics.FromImage(bitmap))
+                    g.Clear(Color.Red);
+
+                encoder.Encode(bitmap, outStream, -1); // lossless
+                Assert.True(outStream.Length > 0);
+            }
+        }
+
+        [Fact]
+        public void TestEncode24bppRgb()
+        {
+            var encoder = new SimpleEncoder();
+            using (var bitmap = new Bitmap(32, 32, PixelFormat.Format24bppRgb))
+            using (var outStream = new MemoryStream())
+            {
+                using (var g = Graphics.FromImage(bitmap))
+                    g.Clear(Color.Green);
+
+                encoder.Encode(bitmap, outStream, 75);
+                Assert.True(outStream.Length > 0);
+            }
+        }
+
+        [Fact]
+        public void TestEncodeNonStandardPixelFormat()
+        {
+            var encoder = new SimpleEncoder();
+            // Format32bppRgb will be auto-converted to 32bppArgb
+            using (var bitmap = new Bitmap(16, 16, PixelFormat.Format32bppRgb))
+            using (var outStream = new MemoryStream())
+            {
+                using (var g = Graphics.FromImage(bitmap))
+                    g.Clear(Color.Blue);
+
+                encoder.Encode(bitmap, outStream, 75);
+                Assert.True(outStream.Length > 0);
+            }
         }
     }
 }

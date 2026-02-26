@@ -1,44 +1,57 @@
-﻿using System;
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using Xunit;
 using Imazen.WebP;
-using System.Drawing;
-using System.IO;
-
 
 namespace Imazen.Test.Webp
 {
     public class TestSimpleDecoder
     {
         [Fact]
-        public void TestWebPVersions()
+        public void TestDecoderVersionNotNull()
         {
-            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
-            Assert.Equal("0.6.0",SimpleDecoder.GetDecoderVersion());
+            var version = SimpleDecoder.GetDecoderVersion();
+            Assert.NotNull(version);
+            Assert.NotEmpty(version);
+            Assert.Contains(".", version);
         }
-        [Fact]
-        public void TestDecSimple()
-        {
-            Imazen.WebP.Extern.LoadLibrary.LoadWebPOrFail();
 
+        [Fact]
+        public void TestDecodeWebPFile()
+        {
             var decoder = new SimpleDecoder();
             var fileName = "testimage.webp";
-            var outFile = "testimageout.jpg";
-            File.Delete(outFile);
-            FileStream outStream = new FileStream(outFile, FileMode.Create);
-            using (Stream inputStream = File.Open(fileName, System.IO.FileMode.Open))
+            Assert.True(File.Exists(fileName), $"Test image not found: {fileName}");
+
+            using (var inputStream = File.Open(fileName, FileMode.Open))
             {
-
                 var bytes = ReadFully(inputStream);
-                var outBitmap = decoder.DecodeFromBytes(bytes, bytes.LongLength);
-                outBitmap.Save(outStream, System.Drawing.Imaging.ImageFormat.Jpeg);
-                outStream.Close();
+                using (var bitmap = decoder.DecodeFromBytes(bytes, bytes.LongLength))
+                {
+                    Assert.True(bitmap.Width > 0);
+                    Assert.True(bitmap.Height > 0);
+                    Assert.Equal(PixelFormat.Format32bppArgb, bitmap.PixelFormat);
+                }
             }
-
-            FileInfo finfo = new FileInfo(outFile);
-            Assert.True(finfo.Exists);
-
-
         }
+
+        [Fact]
+        public void TestDecodeInvalidDataThrows()
+        {
+            var decoder = new SimpleDecoder();
+            var badData = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            Assert.Throws<Exception>(() => decoder.DecodeFromBytes(badData, badData.LongLength));
+        }
+
+        [Fact]
+        public void TestDecodeZeroLengthThrows()
+        {
+            var decoder = new SimpleDecoder();
+            Assert.Throws<Exception>(() => decoder.DecodeFromBytes(new byte[0], 0));
+        }
+
         public static byte[] ReadFully(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
