@@ -15,7 +15,7 @@
 
   <!-- Versioning: .NET API surface version -->
   <PropertyGroup>
-    <VersionPrefix>4.0.0</VersionPrefix>
+    <VersionPrefix>11.0.0</VersionPrefix>
     <VersionSuffix Condition="'$(TAGGED_VERSION)' == ''">preview</VersionSuffix>
     <Version Condition="'$(TAGGED_VERSION)' != ''">$(TAGGED_VERSION)</Version>
   </PropertyGroup>
