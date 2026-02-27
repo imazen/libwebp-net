@@ -17,6 +17,8 @@ namespace Imazen.WebP
         private readonly int _height;
         private bool _disposed;
         private int _lastTimestamp;
+        private int _lastDuration = 100; // default duration for the last frame
+        private bool _hasFrames;
 
         /// <summary>
         /// Creates an animation encoder with default options.
@@ -206,7 +208,10 @@ namespace Imazen.WebP
                     throw new Exception($"Failed to add animation frame: {error}");
                 }
 
+                if (_hasFrames)
+                    _lastDuration = Math.Max(timestampMs - _lastTimestamp, 1);
                 _lastTimestamp = timestampMs;
+                _hasFrames = true;
             }
             finally
             {
@@ -227,9 +232,12 @@ namespace Imazen.WebP
         {
             ThrowIfDisposed();
 
-            // Signal end of frames
+            // Signal end of frames. The timestamp here is the end time of the last frame.
+            // We add at least 1ms beyond _lastTimestamp to give the last frame a non-zero
+            // duration, preventing the encoder from dropping it.
+            int endTimestamp = _lastTimestamp + Math.Max(_lastDuration, 1);
             NativeLibraryLoader.FixDllNotFoundException("webpmux", () =>
-                NativeMethods.WebPAnimEncoderAddNull(_encoder, IntPtr.Zero, _lastTimestamp, IntPtr.Zero));
+                NativeMethods.WebPAnimEncoderAddNull(_encoder, IntPtr.Zero, endTimestamp, IntPtr.Zero));
 
             var webpData = new WebPData();
             int result = NativeLibraryLoader.FixDllNotFoundException("webpmux",

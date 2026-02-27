@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using Xunit;
 using Imazen.WebP;
+using Imazen.WebP.Extern;
 
 namespace Imazen.Test.Webp
 {
@@ -22,10 +23,17 @@ namespace Imazen.Test.Webp
 
             using (var bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb))
             {
-                // Set pixels with varying alpha
+                // Set pixels with varying alpha — use exact mode to preserve RGB under transparent areas.
+                // Avoid alpha=0 since the SimpleEncoder path doesn't use exact mode.
+                // Use alpha range [1..255] to test alpha preservation without triggering
+                // the transparent-pixel optimization.
                 for (int y = 0; y < 16; y++)
                     for (int x = 0; x < 16; x++)
-                        bitmap.SetPixel(x, y, Color.FromArgb((x + y) * 8 % 256, 100, 150, 200));
+                    {
+                        int alpha = (x + y) * 8 % 256;
+                        if (alpha == 0) alpha = 1; // avoid fully transparent
+                        bitmap.SetPixel(x, y, Color.FromArgb(alpha, 100, 150, 200));
+                    }
 
                 using (var ms = new MemoryStream())
                 {
@@ -59,7 +67,9 @@ namespace Imazen.Test.Webp
                 pixels[i * 4 + 3] = (byte)(i % 256);   // varying A
             }
 
-            byte[] encoded = WebPEncoder.Encode(pixels, w, h, w * 4, WebPPixelFormat.Bgra, -1);
+            // Use exact mode to preserve RGB values under transparent pixels
+            var config = new WebPEncoderConfig().SetLossless().SetExact();
+            byte[] encoded = WebPEncoder.Encode(pixels, w, h, w * 4, WebPPixelFormat.Bgra, config);
             var info = WebPInfo.GetImageInfo(encoded);
             Assert.True(info.HasAlpha);
 
@@ -119,7 +129,9 @@ namespace Imazen.Test.Webp
                 pixels[i * 4 + 3] = (byte)(i * 4); // varying A
             }
 
-            byte[] encoded = WebPEncoder.Encode(pixels, w, h, w * 4, WebPPixelFormat.Rgba, -1);
+            // Use exact mode to preserve RGB values under transparent pixels
+            var config = new WebPEncoderConfig().SetLossless().SetExact();
+            byte[] encoded = WebPEncoder.Encode(pixels, w, h, w * 4, WebPPixelFormat.Rgba, config);
             int dw, dh;
             byte[] decoded = WebPDecoder.Decode(encoded, out dw, out dh, WebPPixelFormat.Rgba);
 
@@ -194,6 +206,10 @@ namespace Imazen.Test.Webp
             byte[] pixels = new byte[w * h * 4];
             var rng = new Random(99);
             rng.NextBytes(pixels);
+            // Make all pixels fully opaque — lossless without exact mode may
+            // alter RGB values of transparent pixels for better compression.
+            for (int i = 0; i < w * h; i++)
+                pixels[i * 4 + 3] = 255;
 
             byte[] encoded = WebPEncoder.Encode(pixels, w, h, w * 4, WebPPixelFormat.Bgra, -1);
             int dw, dh;
@@ -212,6 +228,10 @@ namespace Imazen.Test.Webp
             byte[] pixels = new byte[w * h * 4];
             var rng = new Random(7);
             rng.NextBytes(pixels);
+            // Make all pixels fully opaque — lossless without exact mode may
+            // alter RGB values of transparent pixels for better compression.
+            for (int i = 0; i < w * h; i++)
+                pixels[i * 4 + 3] = 255;
 
             byte[] encoded = WebPEncoder.Encode(pixels, w, h, w * 4, WebPPixelFormat.Bgra, -1);
             int dw, dh;

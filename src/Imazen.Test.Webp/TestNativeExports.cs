@@ -171,9 +171,11 @@ namespace Imazen.Test.Webp
 
         private static IntPtr GetLibraryHandle(string name)
         {
-            if (NativeLibrary.TryLoad(name, out var handle))
+            // Use the assembly-aware overload so it goes through the DllImportResolver
+            var asm = typeof(Imazen.WebP.SimpleDecoder).Assembly;
+            if (NativeLibrary.TryLoad(name, asm, null, out var handle))
                 return handle;
-            if (NativeLibrary.TryLoad("lib" + name, out handle))
+            if (NativeLibrary.TryLoad("lib" + name, asm, null, out handle))
                 return handle;
             return IntPtr.Zero;
         }

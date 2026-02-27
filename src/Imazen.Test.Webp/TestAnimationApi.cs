@@ -111,13 +111,14 @@ namespace Imazen.Test.Webp
         public void TestLoopCount()
         {
             int w = 4, h = 4;
-            byte[] frame = CreateSolidBgraFrame(w, h, 128, 128, 128);
+            byte[] frame1 = CreateSolidBgraFrame(w, h, 128, 128, 128);
+            byte[] frame2 = CreateSolidBgraFrame(w, h, 64, 64, 64);
 
             byte[] webpData;
             using (var encoder = new AnimEncoder(w, h, loopCount: 3))
             {
-                encoder.AddFrame(frame, 0, -1);
-                encoder.AddFrame(frame, 50, -1);
+                encoder.AddFrame(frame1, 0, -1);
+                encoder.AddFrame(frame2, 50, -1);
                 webpData = encoder.Assemble();
             }
 
@@ -131,13 +132,14 @@ namespace Imazen.Test.Webp
         public void TestInfiniteLoop()
         {
             int w = 4, h = 4;
-            byte[] frame = CreateSolidBgraFrame(w, h, 200, 100, 50);
+            byte[] frame1 = CreateSolidBgraFrame(w, h, 200, 100, 50);
+            byte[] frame2 = CreateSolidBgraFrame(w, h, 50, 200, 100);
 
             byte[] webpData;
             using (var encoder = new AnimEncoder(w, h, loopCount: 0))
             {
-                encoder.AddFrame(frame, 0, -1);
-                encoder.AddFrame(frame, 100, -1);
+                encoder.AddFrame(frame1, 0, -1);
+                encoder.AddFrame(frame2, 100, -1);
                 webpData = encoder.Assemble();
             }
 
@@ -276,13 +278,14 @@ namespace Imazen.Test.Webp
         public void TestAssembleToStream()
         {
             int w = 8, h = 8;
-            byte[] frame = CreateSolidBgraFrame(w, h, 100, 100, 100);
+            byte[] frame1 = CreateSolidBgraFrame(w, h, 100, 100, 100);
+            byte[] frame2 = CreateSolidBgraFrame(w, h, 200, 50, 50);
 
             using (var encoder = new AnimEncoder(w, h))
             using (var ms = new MemoryStream())
             {
-                encoder.AddFrame(frame, 0, -1);
-                encoder.AddFrame(frame, 100, -1);
+                encoder.AddFrame(frame1, 0, -1);
+                encoder.AddFrame(frame2, 100, -1);
                 encoder.Assemble(ms);
                 Assert.True(ms.Length > 0);
             }
@@ -292,13 +295,14 @@ namespace Imazen.Test.Webp
         public void TestDecoderFromStream()
         {
             int w = 8, h = 8;
-            byte[] frame = CreateSolidBgraFrame(w, h, 50, 100, 150);
+            byte[] frame1 = CreateSolidBgraFrame(w, h, 50, 100, 150);
+            byte[] frame2 = CreateSolidBgraFrame(w, h, 150, 50, 100);
 
             byte[] webpData;
             using (var encoder = new AnimEncoder(w, h))
             {
-                encoder.AddFrame(frame, 0, -1);
-                encoder.AddFrame(frame, 50, -1);
+                encoder.AddFrame(frame1, 0, -1);
+                encoder.AddFrame(frame2, 50, -1);
                 webpData = encoder.Assemble();
             }
 
@@ -315,21 +319,27 @@ namespace Imazen.Test.Webp
         public void TestAnimationWithDifferentFormats()
         {
             int w = 8, h = 8;
-            // RGBA format
-            byte[] rgbaFrame = new byte[w * h * 4];
+            // RGBA format - two different frames to prevent encoder from merging them
+            byte[] rgbaFrame1 = new byte[w * h * 4];
+            byte[] rgbaFrame2 = new byte[w * h * 4];
             for (int i = 0; i < w * h; i++)
             {
-                rgbaFrame[i * 4 + 0] = 255; // R
-                rgbaFrame[i * 4 + 1] = 128; // G
-                rgbaFrame[i * 4 + 2] = 0;   // B
-                rgbaFrame[i * 4 + 3] = 255; // A
+                rgbaFrame1[i * 4 + 0] = 255; // R
+                rgbaFrame1[i * 4 + 1] = 128; // G
+                rgbaFrame1[i * 4 + 2] = 0;   // B
+                rgbaFrame1[i * 4 + 3] = 255; // A
+
+                rgbaFrame2[i * 4 + 0] = 0;   // R
+                rgbaFrame2[i * 4 + 1] = 128; // G
+                rgbaFrame2[i * 4 + 2] = 255; // B
+                rgbaFrame2[i * 4 + 3] = 255; // A
             }
 
             byte[] webpData;
             using (var encoder = new AnimEncoder(w, h))
             {
-                encoder.AddFrame(rgbaFrame, w * 4, WebPPixelFormat.Rgba, 0, -1);
-                encoder.AddFrame(rgbaFrame, w * 4, WebPPixelFormat.Rgba, 100, -1);
+                encoder.AddFrame(rgbaFrame1, w * 4, WebPPixelFormat.Rgba, 0, -1);
+                encoder.AddFrame(rgbaFrame2, w * 4, WebPPixelFormat.Rgba, 100, -1);
                 webpData = encoder.Assemble();
             }
 
@@ -381,13 +391,14 @@ namespace Imazen.Test.Webp
         public void TestDecoderDispose()
         {
             int w = 4, h = 4;
-            byte[] frame = CreateSolidBgraFrame(w, h, 128, 128, 128);
+            byte[] frame1 = CreateSolidBgraFrame(w, h, 128, 128, 128);
+            byte[] frame2 = CreateSolidBgraFrame(w, h, 64, 64, 64);
 
             byte[] webpData;
             using (var encoder = new AnimEncoder(w, h))
             {
-                encoder.AddFrame(frame, 0, -1);
-                encoder.AddFrame(frame, 50, -1);
+                encoder.AddFrame(frame1, 0, -1);
+                encoder.AddFrame(frame2, 50, -1);
                 webpData = encoder.Assemble();
             }
 
