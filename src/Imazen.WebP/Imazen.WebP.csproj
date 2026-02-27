@@ -8,7 +8,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Platforms>AnyCPU</Platforms>
     <Description>.NET bindings for libwebp. Provides WebP encoding and decoding via both System.Drawing (Bitmap) and raw pixel buffer APIs. Requires a platform-specific Imazen.WebP.NativeRuntime package or Imazen.WebP.AllPlatforms.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile Condition="Exists('$(MSBuildThisFileDirectory)..\..\README.md')">README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <!-- System.Drawing.Common for netstandard2.0 and net8.0 -->
@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <!-- Include README in package -->
-  <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\..\README.md')">
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

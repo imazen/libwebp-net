@@ -98,8 +98,9 @@ jobs:
           - os: macos-latest
             rid: osx-arm64
             lib_ext: dylib
-          - os: macos-13
+          - os: macos-14
             rid: osx-x64
+            cmake_flags: '-DCMAKE_OSX_ARCHITECTURES=x86_64'
             lib_ext: dylib
 
     runs-on: ${{ matrix.os }}
@@ -148,7 +149,8 @@ jobs:
           cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
             -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF -DWEBP_BUILD_VWEBP=OFF \
-            -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_EXTRAS=OFF
+            -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_EXTRAS=OFF \
+            ${{ matrix.cmake_flags }}
           cmake --build . --config Release
 
       - name: Locate and copy built libraries
