@@ -265,6 +265,10 @@ jobs:
             # x86: only test .NET Framework (.NET Core x86 requires an x86 host)
             FRAMEWORKS="net472;net48"
             EXTRA_ARGS="-p:PlatformTarget=x86"
+          elif [ "${{ matrix.arch }}" = "arm64" ] && [[ "${{ matrix.rid }}" == win-* ]]; then
+            # Windows ARM64: .NET Framework runs under x64 emulation, so it can't
+            # load arm64 native DLLs. Only test .NET Core frameworks here.
+            FRAMEWORKS=$(echo "${{ matrix.test_frameworks }}" | tr ';' '\n' | grep -v '^net4' | tr '\n' ';' | sed 's/;$//')
           else
             FRAMEWORKS="${{ matrix.test_frameworks }}"
           fi
