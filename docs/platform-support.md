@@ -16,7 +16,7 @@
 
 | Target | Bitmap APIs | Raw Buffer APIs |
 |--------|------------|-----------------|
-| .NET Framework 4.8+ | Yes | Yes |
+| .NET Framework 4.7.2+ | Yes | Yes |
 | .NET Standard 2.0 | Yes | Yes |
 | .NET 8+ | Yes | Yes |
 

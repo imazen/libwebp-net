@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net472;net48;netstandard2.0;net8.0</TargetFrameworks>
     <AssemblyName>Imazen.WebP</AssemblyName>
     <RootNamespace>Imazen.WebP</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -16,8 +16,8 @@
     <PackageReference Include="System.Drawing.Common" Version="8.*" />
   </ItemGroup>
 
-  <!-- System.Runtime.InteropServices.RuntimeInformation for net48 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+  <!-- System.Runtime.InteropServices.RuntimeInformation for net472/net48 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net48'">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
 

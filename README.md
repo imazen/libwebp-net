@@ -12,7 +12,7 @@ Encode, decode, and animate WebP images from .NET. Supports both `System.Drawing
 - **Animation** — decode animated WebP to individual frames; encode frames into animated WebP
 - **Cross-Platform** — raw buffer APIs (`WebPEncoder`, `WebPDecoder`) work everywhere without `System.Drawing`
 - **7 Platform Runtimes** — native libwebp binaries for `win-x64`, `win-x86`, `win-arm64`, `linux-x64`, `linux-arm64`, `osx-x64`, `osx-arm64`
-- **Multi-Framework** — targets `net48`, `netstandard2.0`, and `net8.0`
+- **Multi-Framework** — targets `net472`, `net48`, `netstandard2.0`, and `net8.0`
 - **Advanced Config** — fluent `WebPEncoderConfig` builder for quality, method, lossless presets, near-lossless, alpha quality, sharp YUV, and more
 - **Probing** — `WebPInfo` retrieves dimensions, alpha, animation, and format without full decoding
 
@@ -142,8 +142,8 @@ Console.WriteLine($"{info.Width}x{info.Height}, alpha={info.HasAlpha}, animated=
 
 ## Platform Support
 
-| OS | Architecture | .NET Framework 4.8+ | .NET Standard 2.0 | .NET 8+ |
-|----|-------------|---------------------|--------------------|---------|
+| OS | Architecture | .NET Framework 4.7.2+ | .NET Standard 2.0 | .NET 8+ |
+|----|-------------|----------------------|--------------------|---------|
 | Windows | x64 | Yes | Yes | Yes |
 | Windows | x86 | Yes | Yes | Yes |
 | Windows | ARM64 | Yes (.NET 4.8.1+) | Yes | Yes |
