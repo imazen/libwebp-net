@@ -1,0 +1,3 @@
+<Project>
+  <!-- Standalone consumption test — blocks inheritance from repo root Directory.Build.props -->
+</Project>

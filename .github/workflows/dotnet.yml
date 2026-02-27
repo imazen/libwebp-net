@@ -138,6 +138,25 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
 
+      - name: Copy native binaries to test output
+        shell: bash
+        run: |
+          # NativeRuntime packages use NuGet-only conventions (.targets, runtimes/ graph)
+          # that don't apply via ProjectReference. Copy native files to where
+          # NativeLibraryLoader will find them: runtimes/{rid}/native/ under test output.
+          for RID_DIR in src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/; do
+            if [ -d "$RID_DIR" ] && ls "$RID_DIR"/*.* >/dev/null 2>&1; then
+              TEMP="${RID_DIR%/native/}"
+              RID="${TEMP##*/}"
+              for TFM_DIR in src/Imazen.Test.Webp/bin/Release/*/; do
+                DEST="${TFM_DIR}runtimes/${RID}/native/"
+                mkdir -p "$DEST"
+                cp "$RID_DIR"* "$DEST/"
+              done
+              echo "Copied ${RID} native files to test output directories"
+            fi
+          done
+
       - name: Create .runsettings for x86
         if: matrix.run_settings != ''
         shell: bash
@@ -177,6 +196,47 @@ jobs:
           exit $FAIL
         env:
           DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
+
+      # ── Package consumption tests ──────────────────────────────────────
+      # Verify that NuGet packages work end-to-end:
+      #   .NET Core: runtimes/{rid}/native/ resolved via deps.json
+      #   .NET Framework: .targets copies native files to output directory
+      - name: Pack NuGet packages for consumption test
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          RID="${{ matrix.rid }}"
+          dotnet pack src/Imazen.WebP/Imazen.WebP.csproj -c Release -o artifacts/ --no-build
+          dotnet pack "src/Imazen.WebP.NativeRuntime.${RID}/Imazen.WebP.NativeRuntime.${RID}.csproj" \
+            -c Release -o artifacts/ --no-build
+
+      - name: Test package consumption
+        shell: bash
+        run: |
+          RID="${{ matrix.rid }}"
+          cd test/PackageConsumption
+
+          # Determine frameworks and extra args
+          EXTRA_ARGS=""
+          if [ "${{ matrix.arch }}" = "x86" ]; then
+            # x86: only test .NET Framework (.NET Core x86 requires an x86 host)
+            FRAMEWORKS="net472;net48"
+            EXTRA_ARGS="-p:PlatformTarget=x86"
+          else
+            FRAMEWORKS="${{ matrix.test_frameworks }}"
+          fi
+
+          dotnet restore -p:NativeRid=$RID $EXTRA_ARGS
+          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore
+
+          IFS=';' read -ra FW_ARRAY <<< "$FRAMEWORKS"
+          FAIL=0
+          for fw in "${FW_ARRAY[@]}"; do
+            echo "::group::Package consumption: $fw ($RID)"
+            dotnet run -c Release -f "$fw" -p:NativeRid=$RID $EXTRA_ARGS --no-build || FAIL=1
+            echo "::endgroup::"
+          done
+          exit $FAIL
 
   # Windows heap corruption detection via PageHeap
   heap-validation:
@@ -226,6 +286,22 @@ jobs:
 
       - name: Build
         run: dotnet build --configuration Release
+
+      - name: Copy native binaries to test output
+        shell: bash
+        run: |
+          for RID_DIR in src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/; do
+            if [ -d "$RID_DIR" ] && ls "$RID_DIR"/*.* >/dev/null 2>&1; then
+              TEMP="${RID_DIR%/native/}"
+              RID="${TEMP##*/}"
+              for TFM_DIR in src/Imazen.Test.Webp/bin/Release/*/; do
+                DEST="${TFM_DIR}runtimes/${RID}/native/"
+                mkdir -p "$DEST"
+                cp "$RID_DIR"* "$DEST/"
+              done
+              echo "Copied ${RID} native files to test output directories"
+            fi
+          done
 
       - name: Enable PageHeap for test host
         shell: pwsh

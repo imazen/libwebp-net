@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
     <PackageId>Imazen.WebP.NativeRuntime.win-x86</PackageId>
     <Description>Native libwebp binaries for win-x86. Install Imazen.WebP.AllPlatforms for the complete package.</Description>
+    <NoWarn>$(NoWarn);CS2008</NoWarn>
   </PropertyGroup>
 
   <!-- Version from LIBWEBP_VERSION env var (set by CI), defaults to Directory.Build.props -->
@@ -16,15 +18,15 @@
 
   <ItemGroup>
     <!-- Native binaries -->
-    <Content Include="runtimes/win-x86/native/*" PackagePath="runtimes/win-x86/native/" Pack="true" />
+    <None Include="runtimes/win-x86/native/*" Pack="true" PackagePath="runtimes/win-x86/native/" />
 
     <!-- Placeholder libs so NuGet recognizes framework compatibility -->
-    <Content Include="lib/net48/_._" PackagePath="lib/net48/_._" Pack="true" />
-    <Content Include="lib/netstandard2.0/_._" PackagePath="lib/netstandard2.0/_._" Pack="true" />
+    <None Include="lib/net45/_._" Pack="true" PackagePath="lib/net45/" />
+    <None Include="lib/netstandard2.0/_._" Pack="true" PackagePath="lib/netstandard2.0/" />
 
     <!-- MSBuild targets for .NET Framework copy-to-output -->
-    <Content Include="build/**" PackagePath="build/" Pack="true" />
-    <Content Include="buildTransitive/**" PackagePath="buildTransitive/" Pack="true" />
+    <None Include="build/**" Pack="true" PackagePath="build/" />
+    <None Include="buildTransitive/**" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
 
 </Project>

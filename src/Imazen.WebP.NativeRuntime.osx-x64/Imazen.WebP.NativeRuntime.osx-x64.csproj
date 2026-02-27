@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
     <PackageId>Imazen.WebP.NativeRuntime.osx-x64</PackageId>
     <Description>Native libwebp binaries for osx-x64. Install Imazen.WebP.AllPlatforms for the complete package.</Description>
+    <NoWarn>$(NoWarn);CS2008</NoWarn>
   </PropertyGroup>
 
   <!-- Version from LIBWEBP_VERSION env var (set by CI), defaults to Directory.Build.props -->
@@ -16,15 +18,10 @@
 
   <ItemGroup>
     <!-- Native binaries -->
-    <Content Include="runtimes/osx-x64/native/*" PackagePath="runtimes/osx-x64/native/" Pack="true" />
+    <None Include="runtimes/osx-x64/native/*" Pack="true" PackagePath="runtimes/osx-x64/native/" />
 
-    <!-- Placeholder libs so NuGet recognizes framework compatibility -->
-    <Content Include="lib/net48/_._" PackagePath="lib/net48/_._" Pack="true" />
-    <Content Include="lib/netstandard2.0/_._" PackagePath="lib/netstandard2.0/_._" Pack="true" />
-
-    <!-- MSBuild targets for .NET Framework copy-to-output -->
-    <Content Include="build/**" PackagePath="build/" Pack="true" />
-    <Content Include="buildTransitive/**" PackagePath="buildTransitive/" Pack="true" />
+    <!-- Placeholder lib so NuGet recognizes framework compatibility -->
+    <None Include="lib/netstandard2.0/_._" Pack="true" PackagePath="lib/netstandard2.0/" />
   </ItemGroup>
 
 </Project>
