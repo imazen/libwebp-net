@@ -275,9 +275,9 @@ jobs:
           echo "=== FULL NuGet .g.targets ==="
           cat obj/ConsumptionTest.csproj.nuget.g.targets 2>/dev/null || echo "(not found)"
 
-          # Build with diagnostic verbosity and capture target execution
+          # Build with diagnostic verbosity and look for our target execution
           dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore -v diagnostic 2>&1 | \
-            grep -i "CopyWebP\|AfterTargets.*Build\|_WebPNative\|TargetFrameworkIdentifier\|Skipping target.*CopyWebP\|Target.*CopyWebP\|native.*dll" | head -40 || true
+            grep -i "CopyWebP\|DiagWebP\|\[WebP\.NativeRuntime" | head -20 || echo "(no target messages found)"
 
           echo "=== Output directory contents ==="
           for d in bin/Release/net*/; do
