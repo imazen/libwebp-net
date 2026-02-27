@@ -271,19 +271,7 @@ jobs:
 
           dotnet restore -p:NativeRid=$RID $EXTRA_ARGS
 
-          # Show the FULL g.targets to understand import conditions
-          echo "=== FULL NuGet .g.targets ==="
-          cat obj/ConsumptionTest.csproj.nuget.g.targets 2>/dev/null || echo "(not found)"
-
-          # Build with diagnostic verbosity and look for our target execution
-          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore -v diagnostic 2>&1 | \
-            grep -i "CopyWebP\|DiagWebP\|\[WebP\.NativeRuntime" | head -20 || echo "(no target messages found)"
-
-          echo "=== Output directory contents ==="
-          for d in bin/Release/net*/; do
-            echo "--- $d ---"
-            ls "$d" 2>/dev/null | head -20
-          done
+          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore
 
           IFS=';' read -ra FW_ARRAY <<< "$FRAMEWORKS"
           FAIL=0
