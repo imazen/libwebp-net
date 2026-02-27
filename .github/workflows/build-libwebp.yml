@@ -363,8 +363,14 @@ Built from [webmproject/libwebp@${LIBWEBP_TAG}](https://github.com/webmproject/l
   trigger-dotnet-build:
     needs: [resolve-version, create-release]
     if: needs.resolve-version.outputs.is_new_release == 'true' || github.event_name != 'schedule'
-    uses: ./.github/workflows/dotnet.yml
-    with:
-      libwebp_version: ${{ needs.resolve-version.outputs.libwebp_semver }}
-      native_release_tag: ${{ needs.create-release.outputs.release_tag }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger .NET build, test, and NuGet publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run dotnet.yml \
+            --repo "${{ github.repository }}" \
+            -f libwebp_version="${{ needs.resolve-version.outputs.libwebp_semver }}" \
+            -f native_release_tag="${{ needs.create-release.outputs.release_tag }}"
+          echo "Triggered dotnet.yml with libwebp_version=${{ needs.resolve-version.outputs.libwebp_semver }}, native_release_tag=${{ needs.create-release.outputs.release_tag }}"
