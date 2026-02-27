@@ -423,20 +423,32 @@ namespace Imazen.WebP
         private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle,
             IEnumerable<string>? customSearchDirectories = null)
         {
+            // Try the platform-conventional name first, then lib-prefixed (cmake produces lib-prefixed DLLs on Windows)
             var filename = GetFilenameWithoutDirectory(basename);
-            foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename, customSearchDirectories))
+            var filenames = new List<string> { filename };
+            if (!RuntimeFileLocator.IsUnix)
             {
-                if (!File.Exists(path))
+                var libPrefixed = $"lib{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
+                if (!string.Equals(filename, libPrefixed, StringComparison.OrdinalIgnoreCase))
+                    filenames.Add(libPrefixed);
+            }
+
+            foreach (var fn in filenames)
+            {
+                foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(fn, customSearchDirectories))
                 {
-                    log.NotifyAttempt(basename, path, false, false, 0);
-                }
-                else
-                {
-                    var success = LoadLibrary(path, out handle, out var errorCode);
-                    log.NotifyAttempt(basename, path, true, false, errorCode);
-                    if (success)
+                    if (!File.Exists(path))
                     {
-                        return true;
+                        log.NotifyAttempt(basename, path, false, false, 0);
+                    }
+                    else
+                    {
+                        var success = LoadLibrary(path, out handle, out var errorCode);
+                        log.NotifyAttempt(basename, path, true, false, errorCode);
+                        if (success)
+                        {
+                            return true;
+                        }
                     }
                 }
             }
