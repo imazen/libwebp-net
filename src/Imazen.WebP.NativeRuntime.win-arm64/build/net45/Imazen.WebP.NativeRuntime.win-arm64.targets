@@ -9,7 +9,7 @@
       <_WebPNativeFiles_win_arm64 Include="$(MSBuildThisFileDirectory)../../runtimes/win-arm64/native/*" />
     </ItemGroup>
     <Copy SourceFiles="@(_WebPNativeFiles_win_arm64)"
-          DestinationFolder="$(OutputPath)"
+          DestinationFolder="$(OutputPath)\runtimes\win-arm64\native"
           SkipUnchangedFiles="true" />
   </Target>
 </Project>
