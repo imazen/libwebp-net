@@ -380,7 +380,7 @@ jobs:
 
   pack-and-publish:
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     # Run when: manual release (v* tag), or auto-triggered by build-libwebp (workflow_dispatch with inputs)
     if: >-
       github.event_name == 'release' ||
