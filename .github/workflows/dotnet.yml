@@ -268,7 +268,17 @@ jobs:
           fi
 
           dotnet restore -p:NativeRid=$RID $EXTRA_ARGS
-          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore
+          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore -v:diag 2>&1 | grep -i "Imazen.WebP.NativeRuntime\|CopyToOutput\|native.*dll\|\.targets" | head -40 || true
+
+          echo "=== NuGet package contents ==="
+          ls -la ../../artifacts/Imazen.WebP.NativeRuntime.${RID}*.nupkg 2>/dev/null || true
+          unzip -l ../../artifacts/Imazen.WebP.NativeRuntime.${RID}*.nupkg 2>/dev/null | grep -i "native\|targets\|_\._" || true
+
+          echo "=== Output directory contents ==="
+          for d in bin/Release/net*/; do
+            echo "--- $d ---"
+            ls -la "$d" 2>/dev/null | grep -i "webp\|sharpyuv\|native\|dll" || echo "(no native DLLs found)"
+          done
 
           IFS=';' read -ra FW_ARRAY <<< "$FRAMEWORKS"
           FAIL=0
