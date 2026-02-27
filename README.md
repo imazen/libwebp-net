@@ -142,11 +142,11 @@ Console.WriteLine($"{info.Width}x{info.Height}, alpha={info.HasAlpha}, animated=
 
 ## Platform Support
 
-| OS | Architecture | .NET Framework 4.8 | .NET Standard 2.0 | .NET 8+ |
-|----|-------------|--------------------|--------------------|---------|
+| OS | Architecture | .NET Framework 4.8+ | .NET Standard 2.0 | .NET 8+ |
+|----|-------------|---------------------|--------------------|---------|
 | Windows | x64 | Yes | Yes | Yes |
 | Windows | x86 | Yes | Yes | Yes |
-| Windows | ARM64 | — | Yes | Yes |
+| Windows | ARM64 | Yes (.NET 4.8.1+) | Yes | Yes |
 | Linux | x64 | — | Yes | Yes |
 | Linux | ARM64 | — | Yes | Yes |
 | macOS | x64 | — | Yes | Yes |
