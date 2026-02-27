@@ -13,7 +13,13 @@ namespace Imazen.Test.Webp
             var fileName = "testimage.webp";
             if (!File.Exists(fileName)) return;
 
-            byte[] data = File.ReadAllBytes(fileName);
+            byte[] data;
+            using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var ms = new MemoryStream())
+            {
+                fs.CopyTo(ms);
+                data = ms.ToArray();
+            }
             bool result = WebPInfo.TryGetSize(data, out int width, out int height);
 
             Assert.True(result);
@@ -27,7 +33,13 @@ namespace Imazen.Test.Webp
             var fileName = "testimage.webp";
             if (!File.Exists(fileName)) return;
 
-            byte[] data = File.ReadAllBytes(fileName);
+            byte[] data;
+            using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var ms = new MemoryStream())
+            {
+                fs.CopyTo(ms);
+                data = ms.ToArray();
+            }
             var info = WebPInfo.GetImageInfo(data);
 
             Assert.True(info.Width > 0);

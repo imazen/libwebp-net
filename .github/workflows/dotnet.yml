@@ -242,6 +242,7 @@ jobs:
       #   .NET Core: runtimes/{rid}/native/ resolved via deps.json
       #   .NET Framework: .targets copies native files to output directory
       - name: Pack NuGet packages for consumption test
+        if: success() || failure()
         shell: bash
         run: |
           mkdir -p artifacts
@@ -252,6 +253,7 @@ jobs:
             -c Release -o artifacts/
 
       - name: Test package consumption
+        if: success() || failure()
         shell: bash
         run: |
           RID="${{ matrix.rid }}"
@@ -269,20 +271,13 @@ jobs:
 
           dotnet restore -p:NativeRid=$RID $EXTRA_ARGS
 
-          # Show the g.targets to verify package import
-          echo "=== NuGet .g.targets ==="
-          cat obj/ConsumptionTest.csproj.nuget.g.targets 2>/dev/null | grep -i "native\|webp" || echo "(no webp imports found)"
+          # Show the FULL g.targets to understand import conditions
+          echo "=== FULL NuGet .g.targets ==="
+          cat obj/ConsumptionTest.csproj.nuget.g.targets 2>/dev/null || echo "(not found)"
 
-          # Show the .targets file content from the NuGet cache
-          echo "=== .targets file from NuGet cache ==="
-          find ~/.nuget/packages/imazen.webp.nativeruntime.*/*/build -name "*.targets" -exec echo "--- {} ---" \; -exec cat {} \; 2>/dev/null || echo "(not found)"
-
-          # Show native files in the NuGet cache
-          echo "=== Native files in NuGet cache ==="
-          find ~/.nuget/packages/imazen.webp.nativeruntime.*/*/runtimes -type f 2>/dev/null || echo "(no native files found)"
-
-          # Build with verbose output to see target execution
-          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore -v normal 2>&1 | grep -i "webp\|native\|copy\|target.*skip\|TFI=\|error" || true
+          # Build with diagnostic verbosity and capture target execution
+          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore -v diagnostic 2>&1 | \
+            grep -i "CopyWebP\|AfterTargets.*Build\|_WebPNative\|TargetFrameworkIdentifier\|Skipping target.*CopyWebP\|Target.*CopyWebP\|native.*dll" | head -40 || true
 
           echo "=== Output directory contents ==="
           for d in bin/Release/net*/; do

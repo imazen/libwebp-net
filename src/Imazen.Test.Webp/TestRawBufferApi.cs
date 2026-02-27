@@ -136,7 +136,13 @@ namespace Imazen.Test.Webp
             var fileName = "testimage.webp";
             if (!File.Exists(fileName)) return; // skip if no test file
 
-            byte[] data = File.ReadAllBytes(fileName);
+            byte[] data;
+            using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var ms = new MemoryStream())
+            {
+                fs.CopyTo(ms);
+                data = ms.ToArray();
+            }
             int w, h;
             byte[] pixels = WebPDecoder.Decode(data, out w, out h, WebPPixelFormat.Bgra);
 

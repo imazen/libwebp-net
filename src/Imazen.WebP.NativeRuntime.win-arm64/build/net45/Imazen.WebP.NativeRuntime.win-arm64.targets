@@ -5,11 +5,18 @@
   <Target Name="CopyWebPNativeLibs_win_arm64"
           AfterTargets="Build"
           Condition=" '$(RuntimeIdentifier)' == '' AND '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
+    <Message Importance="high" Text="[WebP.NativeRuntime.win-arm64] Target executing. TFI=$(TargetFrameworkIdentifier) RID=$(RuntimeIdentifier) OutputPath=$(OutputPath)" />
     <ItemGroup>
       <_WebPNativeFiles_win_arm64 Include="$(MSBuildThisFileDirectory)../../runtimes/win-arm64/native/*" />
     </ItemGroup>
+    <Message Importance="high" Text="[WebP.NativeRuntime.win-arm64] Files found: @(_WebPNativeFiles_win_arm64->'%(Filename)%(Extension)', ', ')" />
     <Copy SourceFiles="@(_WebPNativeFiles_win_arm64)"
           DestinationFolder="$(OutputPath)"
           SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="DiagWebPNativeLibs_win_arm64"
+          AfterTargets="Build"
+          Condition=" '$(RuntimeIdentifier)' != '' OR '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
+    <Message Importance="high" Text="[WebP.NativeRuntime.win-arm64] Target SKIPPED. TFI=$(TargetFrameworkIdentifier)" />
   </Target>
 </Project>

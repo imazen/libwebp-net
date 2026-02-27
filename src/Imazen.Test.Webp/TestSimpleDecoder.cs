@@ -25,7 +25,7 @@ namespace Imazen.Test.Webp
             var fileName = "testimage.webp";
             Assert.True(File.Exists(fileName), $"Test image not found: {fileName}");
 
-            using (var inputStream = File.Open(fileName, FileMode.Open))
+            using (var inputStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 var bytes = ReadFully(inputStream);
                 using (var bitmap = decoder.DecodeFromBytes(bytes, bytes.LongLength))
