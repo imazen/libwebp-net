@@ -235,8 +235,9 @@ jobs:
           mkdir -p artifacts
           RID="${{ matrix.rid }}"
           dotnet pack src/Imazen.WebP/Imazen.WebP.csproj -c Release -o artifacts/ --no-build
+          # NativeRuntime projects aren't part of the solution build, so they need restore
           dotnet pack "src/Imazen.WebP.NativeRuntime.${RID}/Imazen.WebP.NativeRuntime.${RID}.csproj" \
-            -c Release -o artifacts/ --no-build
+            -c Release -o artifacts/
 
       - name: Test package consumption
         shell: bash

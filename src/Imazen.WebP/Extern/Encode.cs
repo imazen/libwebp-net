@@ -198,6 +198,7 @@ namespace Imazen.WebP.Extern
     }
 
     /// Return Type: int
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int WebPWriterFunction([InAttribute()] IntPtr data, UIntPtr data_size, ref WebPPicture picture);
 
     [StructLayoutAttribute(LayoutKind.Sequential)]
@@ -215,6 +216,7 @@ namespace Imazen.WebP.Extern
     }
 
     /// Return Type: int
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int WebPProgressHook(int percent, ref WebPPicture picture);
 
     public enum WebPEncCSP
