@@ -341,23 +341,28 @@ jobs:
           RELEASE_TAG="native-v${SEMVER}"
           LIBWEBP_TAG="${{ needs.resolve-version.outputs.libwebp_tag }}"
 
+          NOTES=$(cat <<NOTES_EOF
+          Pre-built native libwebp ${SEMVER} shared libraries for all supported platforms.
+
+          Built from [webmproject/libwebp@${LIBWEBP_TAG}](https://github.com/webmproject/libwebp/releases/tag/${LIBWEBP_TAG}).
+
+          ## Platforms
+          | Platform | File |
+          |----------|------|
+          | Windows x64 | libwebp-${SEMVER}-win-x64.zip |
+          | Windows x86 | libwebp-${SEMVER}-win-x86.zip |
+          | Windows arm64 | libwebp-${SEMVER}-win-arm64.zip |
+          | Linux x64 | libwebp-${SEMVER}-linux-x64.zip |
+          | Linux arm64 | libwebp-${SEMVER}-linux-arm64.zip |
+          | macOS x64 | libwebp-${SEMVER}-osx-x64.zip |
+          | macOS arm64 | libwebp-${SEMVER}-osx-arm64.zip |
+          NOTES_EOF
+          )
+
           gh release create "$RELEASE_TAG" \
             --repo "${{ github.repository }}" \
             --title "libwebp ${SEMVER} native binaries" \
-            --notes "Pre-built native libwebp ${SEMVER} shared libraries for all supported platforms.
-
-Built from [webmproject/libwebp@${LIBWEBP_TAG}](https://github.com/webmproject/libwebp/releases/tag/${LIBWEBP_TAG}).
-
-## Platforms
-| Platform | File |
-|----------|------|
-| Windows x64 | libwebp-${SEMVER}-win-x64.zip |
-| Windows x86 | libwebp-${SEMVER}-win-x86.zip |
-| Windows arm64 | libwebp-${SEMVER}-win-arm64.zip |
-| Linux x64 | libwebp-${SEMVER}-linux-x64.zip |
-| Linux arm64 | libwebp-${SEMVER}-linux-arm64.zip |
-| macOS x64 | libwebp-${SEMVER}-osx-x64.zip |
-| macOS arm64 | libwebp-${SEMVER}-osx-arm64.zip |" \
+            --notes "$NOTES" \
             release-assets/*.zip
 
   trigger-dotnet-build:
