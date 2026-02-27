@@ -13,10 +13,15 @@
     <Version>$(LIBWEBP_VERSION)</Version>
   </PropertyGroup>
 
+  <!-- Windows packages support both net45 and netstandard2.0 -->
   <ItemGroup>
     <ProjectReference Include="..\Imazen.WebP.NativeRuntime.win-x64\Imazen.WebP.NativeRuntime.win-x64.csproj" />
     <ProjectReference Include="..\Imazen.WebP.NativeRuntime.win-x86\Imazen.WebP.NativeRuntime.win-x86.csproj" />
     <ProjectReference Include="..\Imazen.WebP.NativeRuntime.win-arm64\Imazen.WebP.NativeRuntime.win-arm64.csproj" />
+  </ItemGroup>
+
+  <!-- Linux/macOS packages only support netstandard2.0 -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
     <ProjectReference Include="..\Imazen.WebP.NativeRuntime.linux-x64\Imazen.WebP.NativeRuntime.linux-x64.csproj" />
     <ProjectReference Include="..\Imazen.WebP.NativeRuntime.linux-arm64\Imazen.WebP.NativeRuntime.linux-arm64.csproj" />
     <ProjectReference Include="..\Imazen.WebP.NativeRuntime.osx-x64\Imazen.WebP.NativeRuntime.osx-x64.csproj" />
