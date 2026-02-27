@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Only copy for non-.NET Core projects (they handle runtimes/ automatically) -->
-  <ItemGroup Condition=" '$(RuntimeIdentifier)' == '' AND '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
-    <Content Include="$(MSBuildThisFileDirectory)../../runtimes/win-x64/native/*">
-      <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>False</Pack>
-    </Content>
-  </ItemGroup>
+  <!-- Copy native DLLs to output for .NET Framework projects.
+       .NET Core/5+ handles runtimes/ natively via deps.json. -->
+  <Target Name="CopyWebPNativeLibs_win_x64"
+          AfterTargets="Build"
+          Condition=" '$(RuntimeIdentifier)' == '' AND '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
+    <ItemGroup>
+      <_WebPNativeFiles_win_x64 Include="$(MSBuildThisFileDirectory)../../runtimes/win-x64/native/*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_WebPNativeFiles_win_x64)"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>

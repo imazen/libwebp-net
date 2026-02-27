@@ -270,15 +270,6 @@ jobs:
           dotnet restore -p:NativeRid=$RID $EXTRA_ARGS
           dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore
 
-          echo "=== NuGet .g.targets imports ==="
-          cat obj/ConsumptionTest.csproj.nuget.g.targets 2>/dev/null || echo "No .g.targets found"
-
-          echo "=== Output directory contents ==="
-          for d in bin/Release/net*/; do
-            echo "--- $d ---"
-            ls "$d" 2>/dev/null | head -20
-          done
-
           IFS=';' read -ra FW_ARRAY <<< "$FRAMEWORKS"
           FAIL=0
           for fw in "${FW_ARRAY[@]}"; do
