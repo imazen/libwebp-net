@@ -268,7 +268,27 @@ jobs:
           fi
 
           dotnet restore -p:NativeRid=$RID $EXTRA_ARGS
-          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore
+
+          # Show the g.targets to verify package import
+          echo "=== NuGet .g.targets ==="
+          cat obj/ConsumptionTest.csproj.nuget.g.targets 2>/dev/null | grep -i "native\|webp" || echo "(no webp imports found)"
+
+          # Show the .targets file content from the NuGet cache
+          echo "=== .targets file from NuGet cache ==="
+          find ~/.nuget/packages/imazen.webp.nativeruntime.*/*/build -name "*.targets" -exec echo "--- {} ---" \; -exec cat {} \; 2>/dev/null || echo "(not found)"
+
+          # Show native files in the NuGet cache
+          echo "=== Native files in NuGet cache ==="
+          find ~/.nuget/packages/imazen.webp.nativeruntime.*/*/runtimes -type f 2>/dev/null || echo "(no native files found)"
+
+          # Build with verbose output to see target execution
+          dotnet build -c Release -p:NativeRid=$RID $EXTRA_ARGS --no-restore -v normal 2>&1 | grep -i "webp\|native\|copy\|target.*skip\|TFI=\|error" || true
+
+          echo "=== Output directory contents ==="
+          for d in bin/Release/net*/; do
+            echo "--- $d ---"
+            ls "$d" 2>/dev/null | head -20
+          done
 
           IFS=';' read -ra FW_ARRAY <<< "$FRAMEWORKS"
           FAIL=0
