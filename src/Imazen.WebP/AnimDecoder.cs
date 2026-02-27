@@ -42,6 +42,7 @@ namespace Imazen.WebP
         private GCHandle _dataHandle;
         private bool _disposed;
         private readonly AnimInfo _info;
+        private int _prevEndTimestamp;
 
         /// <summary>
         /// Creates an animation decoder from WebP data.
@@ -113,33 +114,11 @@ namespace Imazen.WebP
             Reset();
 
             var frames = new List<AnimFrame>();
-            int canvasSize = _info.Width * _info.Height * 4;
-
-            while (HasMoreFrames())
+            AnimFrame? frame;
+            while ((frame = GetNextFrame()) != null)
             {
-                IntPtr buf = IntPtr.Zero;
-                int timestamp = 0;
-
-                int result = NativeLibraryLoader.FixDllNotFoundException("webpdemux",
-                    () => NativeMethods.WebPAnimDecoderGetNext(_decoder, ref buf, ref timestamp));
-
-                if (result == 0)
-                    throw new Exception("Failed to decode animation frame");
-
-                byte[] pixels = new byte[canvasSize];
-                Marshal.Copy(buf, pixels, 0, canvasSize);
-
-                var frame = new AnimFrame(pixels, _info.Width, _info.Height, timestamp);
                 frames.Add(frame);
             }
-
-            // Compute durations from timestamps
-            for (int i = 0; i < frames.Count - 1; i++)
-                frames[i].DurationMs = frames[i + 1].TimestampMs - frames[i].TimestampMs;
-
-            if (frames.Count > 0)
-                frames[frames.Count - 1].DurationMs = 0;
-
             return frames;
         }
 
@@ -154,10 +133,10 @@ namespace Imazen.WebP
             if (!HasMoreFrames()) return null;
 
             IntPtr buf = IntPtr.Zero;
-            int timestamp = 0;
+            int endTimestamp = 0;
 
             int result = NativeLibraryLoader.FixDllNotFoundException("webpdemux",
-                () => NativeMethods.WebPAnimDecoderGetNext(_decoder, ref buf, ref timestamp));
+                () => NativeMethods.WebPAnimDecoderGetNext(_decoder, ref buf, ref endTimestamp));
 
             if (result == 0) return null;
 
@@ -165,7 +144,14 @@ namespace Imazen.WebP
             byte[] pixels = new byte[canvasSize];
             Marshal.Copy(buf, pixels, 0, canvasSize);
 
-            return new AnimFrame(pixels, _info.Width, _info.Height, timestamp);
+            // WebPAnimDecoderGetNext returns the frame's END timestamp.
+            // Convert to start timestamp for consistency with AnimEncoder.AddFrame.
+            int startTimestamp = _prevEndTimestamp;
+            var frame = new AnimFrame(pixels, _info.Width, _info.Height, startTimestamp);
+            frame.DurationMs = endTimestamp - startTimestamp;
+            _prevEndTimestamp = endTimestamp;
+
+            return frame;
         }
 
         /// <summary>
@@ -189,6 +175,7 @@ namespace Imazen.WebP
                 NativeMethods.WebPAnimDecoderReset(_decoder);
                 return 0;
             });
+            _prevEndTimestamp = 0;
         }
 
         private void ThrowIfDisposed()

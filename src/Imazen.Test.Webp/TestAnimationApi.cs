@@ -103,7 +103,7 @@ namespace Imazen.Test.Webp
                 // Check computed durations
                 Assert.Equal(200, frames[0].DurationMs);
                 Assert.Equal(200, frames[1].DurationMs);
-                Assert.Equal(0, frames[2].DurationMs); // last frame
+                Assert.Equal(200, frames[2].DurationMs); // last frame gets proper duration
             }
         }
 

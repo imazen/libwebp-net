@@ -135,6 +135,27 @@ jobs:
             ls -la "$DEST"
           done
 
+      - name: Fix macOS dylib rpaths
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          # The native build embeds build-directory @rpath references that don't
+          # exist at runtime. Rewrite dependencies to use @loader_path so each
+          # dylib finds its dependencies in the same directory.
+          find src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/ -name "*.dylib" 2>/dev/null | while read dylib; do
+            dir=$(dirname "$dylib")
+            otool -L "$dylib" 2>/dev/null | awk '/@rpath\//{print $1}' | while read dep; do
+              base=$(basename "$dep")
+              # Strip version: libfoo.N.dylib → libfoo.dylib
+              unversioned=$(echo "$base" | sed -E 's/\.[0-9]+\.dylib/.dylib/')
+              if [ -f "$dir/$unversioned" ]; then
+                install_name_tool -change "$dep" "@loader_path/$unversioned" "$dylib"
+              elif [ -f "$dir/$base" ]; then
+                install_name_tool -change "$dep" "@loader_path/$base" "$dylib"
+              fi
+            done
+          done
+
       - name: Build
         run: dotnet build --configuration Release
 

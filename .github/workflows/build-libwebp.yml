@@ -188,6 +188,30 @@ jobs:
           fi
 
           echo "Copied $LIBS_FOUND libraries to $DEST"
+
+          # Fix macOS dylib install names: the cmake build embeds @rpath
+          # references pointing to the build directory. Rewrite to @loader_path
+          # so each dylib finds dependencies in its own directory at runtime.
+          if [[ "$EXT" == "dylib" ]]; then
+            for dylib in "$DEST"/*.dylib; do
+              otool -L "$dylib" 2>/dev/null | awk '/@rpath\//{print $1}' | while read dep; do
+                base=$(basename "$dep")
+                # Strip version: libfoo.N.dylib → libfoo.dylib
+                unversioned=$(echo "$base" | sed -E 's/\.[0-9]+\.dylib/.dylib/')
+                if [ -f "$DEST/$unversioned" ]; then
+                  install_name_tool -change "$dep" "@loader_path/$unversioned" "$dylib"
+                elif [ -f "$DEST/$base" ]; then
+                  install_name_tool -change "$dep" "@loader_path/$base" "$dylib"
+                fi
+              done
+            done
+            echo "Fixed macOS dylib rpaths:"
+            for dylib in "$DEST"/*.dylib; do
+              echo "  $(basename "$dylib"):"
+              otool -L "$dylib" 2>/dev/null | grep -v "^$dylib" | head -5
+            done
+          fi
+
           ls -la "$DEST"
 
       - name: Build and run ABI check tool
