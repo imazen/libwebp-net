@@ -252,6 +252,8 @@ jobs:
           }
 
       - name: Run tests with PageHeap
+        # Tests requiring native DLLs will fail if no native release exists yet
+        continue-on-error: ${{ steps.native.outputs.tag == '' }}
         run: dotnet test --configuration Release --no-build --verbosity normal -f net8.0
         env:
           DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
