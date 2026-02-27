@@ -154,7 +154,7 @@ Console.WriteLine($"{info.Width}x{info.Height}, alpha={info.HasAlpha}, animated=
 
 ## API Reference
 
-Full API documentation is available at [imazen.org/libwebp-net](https://imazen.org/libwebp-net/).
+Full API documentation is available at [imazen.github.io/libwebp-net](https://imazen.github.io/libwebp-net/).
 
 ## License
 
