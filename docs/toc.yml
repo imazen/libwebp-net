@@ -1,0 +1,12 @@
+- name: Getting Started
+  href: getting-started.md
+- name: Encoding
+  href: encoding.md
+- name: Decoding
+  href: decoding.md
+- name: Animation
+  href: animation.md
+- name: Advanced Configuration
+  href: advanced.md
+- name: Platform Support
+  href: platform-support.md

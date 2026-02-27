@@ -7,8 +7,15 @@ using Imazen.WebP.Extern;
 
 namespace Imazen.WebP {
 
+    /// <summary>
+    /// Decodes WebP images into System.Drawing.Bitmap objects.
+    /// For a cross-platform alternative without System.Drawing, see <see cref="WebPDecoder"/>.
+    /// </summary>
     public class SimpleDecoder {
 
+        /// <summary>
+        /// Returns the version string of the loaded native libwebp decoder (e.g. "1.5.0").
+        /// </summary>
         public static string GetDecoderVersion()
         {
             uint v = (uint)NativeLibraryLoader.FixDllNotFoundException("webp",
@@ -21,12 +28,22 @@ namespace Imazen.WebP {
 
         public SimpleDecoder() { }
 
+        /// <summary>
+        /// Decodes a WebP image from a byte array into a 32bpp ARGB Bitmap.
+        /// </summary>
+        /// <param name="data">The WebP-encoded data.</param>
+        /// <param name="length">Number of bytes to read from the array.</param>
         public unsafe Bitmap DecodeFromBytes(byte[] data, long length) {
             fixed (byte* dataptr = data) {
                 return DecodeFromPointer((IntPtr)dataptr, length);
             }
         }
 
+        /// <summary>
+        /// Decodes a WebP image from an unmanaged memory pointer into a 32bpp ARGB Bitmap.
+        /// </summary>
+        /// <param name="data">Pointer to the WebP-encoded data.</param>
+        /// <param name="length">Number of bytes of WebP data.</param>
         public Bitmap DecodeFromPointer(IntPtr data, long length) {
             int w = 0, h = 0;
             // Validate header and determine size

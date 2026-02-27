@@ -1,0 +1,40 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["src/Imazen.WebP/Imazen.WebP.csproj"],
+          "src": "."
+        }
+      ],
+      "dest": "api",
+      "properties": {
+        "TargetFramework": "net8.0"
+      },
+      "filter": "filterConfig.yml"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": ["api/**.yml", "api/index.md"]
+      },
+      {
+        "files": ["docs/**.md", "docs/**/toc.yml", "*.md", "toc.yml"]
+      }
+    ],
+    "resource": [
+      {
+        "files": ["docs/images/**"]
+      }
+    ],
+    "dest": "_site",
+    "globalMetadataFiles": [],
+    "globalMetadata": {
+      "_appTitle": "Imazen.WebP",
+      "_appFooter": "Copyright 2012\u20132026 Imazen LLC. MIT License.",
+      "_enableSearch": true
+    },
+    "template": ["default", "modern"]
+  }
+}

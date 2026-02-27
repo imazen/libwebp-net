@@ -1,0 +1,4 @@
+apiRules:
+  - exclude:
+      uidRegex: ^Imazen\.WebP\.Extern
+      type: Namespace

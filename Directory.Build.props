@@ -9,6 +9,8 @@
     <PackageTags>WebP;Image;Encode;Decode;libwebp;Native</PackageTags>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <!-- Versioning: .NET API surface version -->

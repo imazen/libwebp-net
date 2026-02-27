@@ -12,6 +12,9 @@ namespace Imazen.WebP {
     public class SimpleEncoder {
         public SimpleEncoder() { }
 
+        /// <summary>
+        /// Returns the version string of the loaded native libwebp encoder (e.g. "1.5.0").
+        /// </summary>
         public static string GetEncoderVersion()
         {
             uint v = (uint)NativeLibraryLoader.FixDllNotFoundException("webp",

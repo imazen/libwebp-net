@@ -10,9 +10,13 @@ namespace Imazen.WebP
     /// </summary>
     public enum WebPPixelFormat
     {
+        /// <summary>32-bit Blue-Green-Red-Alpha pixel format. Native format for System.Drawing on Windows.</summary>
         Bgra,
+        /// <summary>32-bit Red-Green-Blue-Alpha pixel format.</summary>
         Rgba,
+        /// <summary>24-bit Blue-Green-Red pixel format (no alpha).</summary>
         Bgr,
+        /// <summary>24-bit Red-Green-Blue pixel format (no alpha).</summary>
         Rgb
     }
 

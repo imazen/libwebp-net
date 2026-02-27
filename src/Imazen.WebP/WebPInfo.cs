@@ -9,9 +9,13 @@ namespace Imazen.WebP
     /// </summary>
     public class WebPImageInfo
     {
+        /// <summary>Image width in pixels.</summary>
         public int Width { get; }
+        /// <summary>Image height in pixels.</summary>
         public int Height { get; }
+        /// <summary>Whether the image contains an alpha channel.</summary>
         public bool HasAlpha { get; }
+        /// <summary>Whether the image is an animated WebP.</summary>
         public bool HasAnimation { get; }
         /// <summary>
         /// 0 = undefined/mixed, 1 = lossy, 2 = lossless

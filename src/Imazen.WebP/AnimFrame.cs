@@ -34,6 +34,13 @@ namespace Imazen.WebP
         /// </summary>
         public int DurationMs { get; internal set; }
 
+        /// <summary>
+        /// Creates a new animation frame with the given pixel data and timestamp.
+        /// </summary>
+        /// <param name="pixels">Decoded BGRA pixel data for the full canvas.</param>
+        /// <param name="width">Canvas width in pixels.</param>
+        /// <param name="height">Canvas height in pixels.</param>
+        /// <param name="timestampMs">Frame timestamp in milliseconds.</param>
         public AnimFrame(byte[] pixels, int width, int height, int timestampMs)
         {
             Pixels = pixels ?? throw new ArgumentNullException(nameof(pixels));
