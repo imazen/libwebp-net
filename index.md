@@ -33,4 +33,4 @@ Native binaries are provided for 7 platforms: Windows (x64, x86, ARM64), Linux (
 
 ## License
 
-[MIT](https://github.com/imazen/libwebp-net/blob/master/LICENSE.txt) — Copyright 2012–2026 Imazen LLC
+[MIT](https://github.com/imazen/libwebp-net/blob/main/LICENSE.txt) — Copyright 2012–2026 Imazen LLC
