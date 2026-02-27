@@ -454,6 +454,16 @@ jobs:
             unzip -o "/tmp/native-dl/libwebp-${SEMVER}-${RID}.zip" -d "$DEST"
           done
 
+      - name: Build managed library
+        shell: bash
+        run: |
+          API_VERSION="${{ steps.versions.outputs.api_version }}"
+          EXTRA_ARGS=""
+          if [ -n "$API_VERSION" ]; then
+            EXTRA_ARGS="-p:Version=${API_VERSION}"
+          fi
+          dotnet build src/Imazen.WebP/Imazen.WebP.csproj --configuration Release $EXTRA_ARGS
+
       - name: Pack managed packages
         shell: bash
         run: |
@@ -462,7 +472,7 @@ jobs:
           if [ -n "$API_VERSION" ]; then
             EXTRA_ARGS="-p:Version=${API_VERSION}"
           fi
-          dotnet pack src/Imazen.WebP/Imazen.WebP.csproj --configuration Release $EXTRA_ARGS -o packages/
+          dotnet pack src/Imazen.WebP/Imazen.WebP.csproj --configuration Release --no-build $EXTRA_ARGS -o packages/
 
       - name: Pack native runtime packages
         shell: bash
