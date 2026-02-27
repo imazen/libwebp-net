@@ -98,15 +98,14 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/releases" | \
               jq -r '[.[] | select(.tag_name | startswith("native-v"))][0].tag_name // empty')
             if [ -z "$TAG" ]; then
-              echo "No native release found — tests will rely on local DLLs"
-              echo "tag=" >> "$GITHUB_OUTPUT"
+              echo "::error::No native release found. Run build-libwebp.yml first."
+              exit 1
             else
               echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
             fi
           fi
 
       - name: Download native binaries from GitHub release
-        if: steps.native.outputs.tag != ''
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -150,8 +149,6 @@ jobs:
 
       - name: Test (x86 with runsettings)
         if: matrix.run_settings != ''
-        # Tests requiring native DLLs will fail if no native release exists yet
-        continue-on-error: ${{ steps.native.outputs.tag == '' }}
         shell: bash
         run: |
           IFS=';' read -ra FRAMEWORKS <<< "${{ matrix.test_frameworks }}"
@@ -168,8 +165,6 @@ jobs:
 
       - name: Test
         if: matrix.run_settings == ''
-        # Tests requiring native DLLs will fail if no native release exists yet
-        continue-on-error: ${{ steps.native.outputs.tag == '' }}
         shell: bash
         run: |
           IFS=';' read -ra FRAMEWORKS <<< "${{ matrix.test_frameworks }}"
@@ -205,11 +200,14 @@ jobs:
             TAG=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/releases" | \
               jq -r '[.[] | select(.tag_name | startswith("native-v"))][0].tag_name // empty')
+            if [ -z "$TAG" ]; then
+              echo "::error::No native release found. Run build-libwebp.yml first."
+              exit 1
+            fi
             echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Download native binaries
-        if: steps.native.outputs.tag != ''
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -248,8 +246,6 @@ jobs:
           }
 
       - name: Run tests with PageHeap
-        # Tests requiring native DLLs will fail if no native release exists yet
-        continue-on-error: ${{ steps.native.outputs.tag == '' }}
         run: dotnet test --configuration Release --no-build --verbosity normal -f net8.0
         env:
           DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
