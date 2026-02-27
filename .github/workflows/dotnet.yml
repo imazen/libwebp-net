@@ -46,10 +46,10 @@ jobs:
             arch: x86
             run_settings: '<RunSettings><RunConfiguration><TargetPlatform>x86</TargetPlatform></RunConfiguration></RunSettings>'
 
-          # Windows ARM64
+          # Windows ARM64 (.NET 4.8.1+ for Framework support)
           - os: windows-11-arm
             rid: win-arm64
-            test_frameworks: 'net8.0;net10.0'
+            test_frameworks: 'net48;net8.0;net10.0'
             arch: arm64
 
           # Linux x64
