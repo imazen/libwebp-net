@@ -86,6 +86,17 @@ jobs:
             8.0.x
             10.0.x
 
+      - name: Install x86 .NET runtime for testing
+        if: matrix.arch == 'x86'
+        shell: pwsh
+        run: |
+          # VSTest with <TargetPlatform>x86</TargetPlatform> needs an x86 dotnet host
+          # to launch the testhost process for .NET Core TFMs.
+          $installScript = "$env:TEMP\dotnet-install.ps1"
+          Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile $installScript
+          & $installScript -Channel 8.0 -Architecture x86 -Runtime dotnet `
+            -InstallDir "${env:ProgramFiles(x86)}\dotnet"
+
       - name: Determine native release tag
         id: native
         shell: bash
@@ -209,6 +220,7 @@ jobs:
           exit $FAIL
         env:
           DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
+          DOTNET_ROOT_X86: C:\Program Files (x86)\dotnet
 
       - name: Test
         if: matrix.run_settings == ''
