@@ -455,6 +455,7 @@ jobs:
           done
 
       - name: Pack managed packages
+        shell: bash
         run: |
           API_VERSION="${{ steps.versions.outputs.api_version }}"
           EXTRA_ARGS=""
@@ -464,6 +465,7 @@ jobs:
           dotnet pack src/Imazen.WebP/Imazen.WebP.csproj --configuration Release $EXTRA_ARGS -o packages/
 
       - name: Pack native runtime packages
+        shell: bash
         run: |
           NATIVE_VERSION="${{ steps.versions.outputs.native_version }}"
           EXTRA_ARGS=""
@@ -493,6 +495,7 @@ jobs:
         if: >-
           github.event_name == 'release' ||
           (github.event_name == 'workflow_dispatch' && inputs.libwebp_version != '')
+        shell: bash
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
