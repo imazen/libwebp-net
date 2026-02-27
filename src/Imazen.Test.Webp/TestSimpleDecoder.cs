@@ -18,7 +18,7 @@ namespace Imazen.Test.Webp
             Assert.Contains(".", version);
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestDecodeWebPFile()
         {
             var decoder = new SimpleDecoder();

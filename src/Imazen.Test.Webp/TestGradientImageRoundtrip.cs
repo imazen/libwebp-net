@@ -39,7 +39,7 @@ namespace Imazen.Test.Webp
         /// Ported from resizer4: "We can encode a webp image"
         /// Encodes a 100x100 gradient to WebP.
         /// </summary>
-        [Fact]
+        [WindowsFact]
         public void TestEncodeGradientToWebP()
         {
             using (var bitmap = CreateGradientBitmap(100, 100))
@@ -66,7 +66,7 @@ namespace Imazen.Test.Webp
         /// Ported from resizer4: "We can encode and decode a webp image"
         /// Full roundtrip: gradient → WebP → decode → verify dimensions.
         /// </summary>
-        [Fact]
+        [WindowsFact]
         public void TestEncodeDecodeGradientRoundtrip()
         {
             var encoder = new SimpleEncoder();
@@ -93,7 +93,7 @@ namespace Imazen.Test.Webp
         /// <summary>
         /// Roundtrip: gradient → WebP (lossless) → decode → pixel-perfect.
         /// </summary>
-        [Fact]
+        [WindowsFact]
         public void TestLosslessGradientRoundtrip()
         {
             var encoder = new SimpleEncoder();
@@ -120,7 +120,7 @@ namespace Imazen.Test.Webp
         /// <summary>
         /// Test encoding a gradient at multiple quality levels.
         /// </summary>
-        [Theory]
+        [WindowsTheory]
         [InlineData(0)]
         [InlineData(25)]
         [InlineData(50)]
@@ -141,7 +141,7 @@ namespace Imazen.Test.Webp
         /// <summary>
         /// Test gradient with 24bpp RGB format.
         /// </summary>
-        [Fact]
+        [WindowsFact]
         public void TestEncodeDecodeGradient24bpp()
         {
             var encoder = new SimpleEncoder();
@@ -163,7 +163,7 @@ namespace Imazen.Test.Webp
         /// <summary>
         /// Tests that higher quality produces larger output for lossy encoding.
         /// </summary>
-        [Fact]
+        [WindowsFact]
         public void TestHigherQualityProducesLargerOutput()
         {
             long lowSize, highSize;

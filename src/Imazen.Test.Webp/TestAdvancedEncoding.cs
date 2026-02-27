@@ -241,7 +241,7 @@ namespace Imazen.Test.Webp
         /// <summary>
         /// Test SimpleEncoder with WebPEncoderConfig (Bitmap API).
         /// </summary>
-        [Fact]
+        [WindowsFact]
         public void TestSimpleEncoderWithConfig()
         {
             var config = new WebPEncoderConfig(WebPPreset.WEBP_PRESET_PHOTO, 85);
@@ -261,7 +261,7 @@ namespace Imazen.Test.Webp
             }
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestSimpleEncoderWithLosslessConfig()
         {
             var config = new WebPEncoderConfig().SetLossless();
@@ -287,7 +287,7 @@ namespace Imazen.Test.Webp
             }
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestSimpleEncoderWithConfig24bpp()
         {
             var config = new WebPEncoderConfig().SetQuality(90);
@@ -304,7 +304,7 @@ namespace Imazen.Test.Webp
             }
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestSimpleEncoderWithConfigNonStandardFormat()
         {
             var config = new WebPEncoderConfig().SetQuality(75);

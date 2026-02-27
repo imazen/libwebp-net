@@ -8,8 +8,9 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using System.Threading;
-#if !NETCOREAPP
 using System.Reflection;
+#if NETCOREAPP
+using System.Runtime.CompilerServices;
 #endif
 
 namespace Imazen.WebP
@@ -333,7 +334,7 @@ namespace Imazen.WebP
 
     internal static class NativeLibraryLoader
     {
-        private static string GetFilenameWithoutDirectory(string basename) =>
+        internal static string GetFilenameWithoutDirectory(string basename) =>
             $"{RuntimeFileLocator.SharedLibraryPrefix.Value}{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
 
         /// <summary>
@@ -459,6 +460,15 @@ namespace Imazen.WebP
 
         private static bool LoadLibrary(string fullPath, out IntPtr handle, out int? errorCode)
         {
+#if NETCOREAPP
+            if (NativeLibrary.TryLoad(fullPath, out handle))
+            {
+                errorCode = null;
+                return true;
+            }
+            errorCode = Marshal.GetLastWin32Error();
+            return false;
+#else
             handle = RuntimeFileLocator.IsUnix ? UnixLoadLibrary.Execute(fullPath) : WindowsLoadLibrary.Execute(fullPath);
             if (handle == IntPtr.Zero)
             {
@@ -468,9 +478,11 @@ namespace Imazen.WebP
 
             errorCode = null;
             return true;
+#endif
         }
     }
 
+#if !NETCOREAPP
     [SuppressUnmanagedCodeSecurity]
     [SecurityCritical]
     internal static class WindowsLoadLibrary
@@ -490,13 +502,96 @@ namespace Imazen.WebP
     [SecurityCritical]
     internal static class UnixLoadLibrary
     {
-        [DllImport("libdl", SetLastError = true, CharSet = CharSet.Ansi)]
-        private static extern IntPtr dlopen(string fileName, int flags);
+        // Modern Linux (glibc 2.34+ / Ubuntu 24.04+) merged libdl into libc;
+        // the standalone libdl.so symlink no longer exists. Use libdl.so.2 on
+        // Linux, fall back to libdl (works on macOS and older Linux).
+        [DllImport("libdl.so.2", EntryPoint = "dlopen", SetLastError = true, CharSet = CharSet.Ansi)]
+        private static extern IntPtr dlopen_libdl2(string fileName, int flags);
+
+        [DllImport("libdl", EntryPoint = "dlopen", SetLastError = true, CharSet = CharSet.Ansi)]
+        private static extern IntPtr dlopen_libdl(string fileName, int flags);
+
+        private static volatile bool _preferLibdl2 = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
         public static IntPtr Execute(string fileName)
         {
             const int rtldNow = 2;
-            return dlopen(fileName, rtldNow);
+            if (_preferLibdl2)
+            {
+                try { return dlopen_libdl2(fileName, rtldNow); }
+                catch (DllNotFoundException) { _preferLibdl2 = false; }
+            }
+            return dlopen_libdl(fileName, rtldNow);
         }
     }
+#endif
+
+#if NETCOREAPP
+    /// <summary>
+    /// Module initializer that registers a DllImportResolver for this assembly.
+    /// This ensures that P/Invoke calls for libwebp, libwebpdemux, and libwebpmux
+    /// are resolved using our custom search logic (runtimes/{rid}/native/, arch subdirs, etc.)
+    /// without requiring callers to go through FixDllNotFoundException.
+    /// </summary>
+    internal static class NativeLibraryBootstrap
+    {
+        [ModuleInitializer]
+        internal static void Initialize()
+        {
+            try
+            {
+                NativeLibrary.SetDllImportResolver(
+                    typeof(NativeLibraryBootstrap).Assembly,
+                    ResolveDllImport);
+            }
+            catch (InvalidOperationException)
+            {
+                // Resolver already registered
+            }
+        }
+
+        private static IntPtr ResolveDllImport(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            // Try default resolution first (handles system libraries like kernel32)
+            if (NativeLibrary.TryLoad(libraryName, assembly, searchPath, out var handle))
+                return handle;
+
+            // Map DllImport library names to our basenames
+            string? basename = libraryName switch
+            {
+                "libwebp" or "webp" => "webp",
+                "libwebpdemux" or "webpdemux" => "webpdemux",
+                "libwebpmux" or "webpmux" => "webpmux",
+                _ => null
+            };
+
+            if (basename == null)
+                return IntPtr.Zero;
+
+            // Use our custom search logic (runtimes/{rid}/native/, arch subdirs, etc.)
+            var filename = NativeLibraryLoader.GetFilenameWithoutDirectory(basename);
+            foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename))
+            {
+                if (File.Exists(path) && NativeLibrary.TryLoad(path, out handle))
+                    return handle;
+            }
+
+            // Also try lib-prefixed on Windows (cmake produces lib-prefixed DLLs)
+            if (!RuntimeFileLocator.IsUnix)
+            {
+                var libPrefixed = $"lib{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
+                if (!string.Equals(filename, libPrefixed, StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(libPrefixed))
+                    {
+                        if (File.Exists(path) && NativeLibrary.TryLoad(path, out handle))
+                            return handle;
+                    }
+                }
+            }
+
+            return IntPtr.Zero;
+        }
+    }
+#endif
 }

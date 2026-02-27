@@ -12,7 +12,7 @@ namespace Imazen.Test.Webp
     /// </summary>
     public class TestStreamApi
     {
-        [Fact]
+        [WindowsFact]
         public void TestSimpleDecoderDecodeFromStream()
         {
             var encoder = new SimpleEncoder();
@@ -38,7 +38,7 @@ namespace Imazen.Test.Webp
             }
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestSimpleDecoderDecodeFromStreamLossless()
         {
             var encoder = new SimpleEncoder();
@@ -183,7 +183,7 @@ namespace Imazen.Test.Webp
         /// Full stream roundtrip: Bitmap → encode to stream → decode from stream.
         /// Mirrors resizer4's encode-then-decode pattern.
         /// </summary>
-        [Fact]
+        [WindowsFact]
         public void TestFullStreamRoundtrip()
         {
             var encoder = new SimpleEncoder();

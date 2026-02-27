@@ -14,7 +14,7 @@ namespace Imazen.Test.Webp
     {
         // --- Alpha channel tests ---
 
-        [Fact]
+        [WindowsFact]
         public void TestAlphaPreservedLosslessBitmap()
         {
             var encoder = new SimpleEncoder();
@@ -238,7 +238,7 @@ namespace Imazen.Test.Webp
                 WebPEncoder.Encode(pixels, 10, 0, 40, WebPPixelFormat.Bgra, 50));
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestBitmapLargerDimensionRoundtrip()
         {
             var encoder = new SimpleEncoder();

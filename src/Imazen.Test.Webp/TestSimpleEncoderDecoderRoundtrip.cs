@@ -52,21 +52,21 @@ namespace Imazen.Test.Webp
             }
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestRgb32()
         {
             using (var gdiBitmap = GenerateTestBitmap(PixelFormat.Format32bppRgb, 10, 10, RandomRgb))
                 TestLosslessRoundtrip(gdiBitmap);
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestRgb24()
         {
             using (var gdiBitmap = GenerateTestBitmap(PixelFormat.Format24bppRgb, 10, 10, RandomRgb))
                 TestLosslessRoundtrip(gdiBitmap);
         }
 
-        [Fact]
+        [WindowsFact]
         public void TestArgb32()
         {
             using (var gdiBitmap = GenerateTestBitmap(PixelFormat.Format32bppArgb, 10, 10, RandomArgb))

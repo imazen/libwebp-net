@@ -144,6 +144,9 @@ jobs:
           # NativeRuntime packages use NuGet-only conventions (.targets, runtimes/ graph)
           # that don't apply via ProjectReference. Copy native files to where
           # NativeLibraryLoader will find them: runtimes/{rid}/native/ under test output.
+          # Also copy the matching RID directly to the output root for .NET Framework
+          # DllImport resolution (which doesn't search runtimes/ subdirectories).
+          MATCHING_RID="${{ matrix.rid }}"
           for RID_DIR in src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/; do
             if [ -d "$RID_DIR" ] && ls "$RID_DIR"/*.* >/dev/null 2>&1; then
               TEMP="${RID_DIR%/native/}"
@@ -152,6 +155,10 @@ jobs:
                 DEST="${TFM_DIR}runtimes/${RID}/native/"
                 mkdir -p "$DEST"
                 cp "$RID_DIR"* "$DEST/"
+                # Copy matching RID to output root for .NET Framework DllImport
+                if [ "$RID" = "$MATCHING_RID" ]; then
+                  cp "$RID_DIR"* "$TFM_DIR/"
+                fi
               done
               echo "Copied ${RID} native files to test output directories"
             fi
@@ -298,6 +305,10 @@ jobs:
                 DEST="${TFM_DIR}runtimes/${RID}/native/"
                 mkdir -p "$DEST"
                 cp "$RID_DIR"* "$DEST/"
+                # Copy win-x64 to output root for .NET Framework DllImport
+                if [ "$RID" = "win-x64" ]; then
+                  cp "$RID_DIR"* "$TFM_DIR/"
+                fi
               done
               echo "Copied ${RID} native files to test output directories"
             fi
