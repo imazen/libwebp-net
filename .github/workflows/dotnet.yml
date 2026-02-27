@@ -155,12 +155,14 @@ jobs:
         shell: bash
         run: |
           IFS=';' read -ra FRAMEWORKS <<< "${{ matrix.test_frameworks }}"
+          FAIL=0
           for fw in "${FRAMEWORKS[@]}"; do
             echo "::group::Testing $fw (x86)"
             dotnet test --configuration Release --no-build --verbosity normal \
-              -f "$fw" --settings test.runsettings
+              -f "$fw" --settings test.runsettings || FAIL=1
             echo "::endgroup::"
           done
+          exit $FAIL
         env:
           DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
 
@@ -171,11 +173,13 @@ jobs:
         shell: bash
         run: |
           IFS=';' read -ra FRAMEWORKS <<< "${{ matrix.test_frameworks }}"
+          FAIL=0
           for fw in "${FRAMEWORKS[@]}"; do
             echo "::group::Testing $fw"
-            dotnet test --configuration Release --no-build --verbosity normal -f "$fw"
+            dotnet test --configuration Release --no-build --verbosity normal -f "$fw" || FAIL=1
             echo "::endgroup::"
           done
+          exit $FAIL
         env:
           DOTNET_SYSTEM_DRAWING_COMMON_ENABLE_UNIX_SUPPORT: false
 
