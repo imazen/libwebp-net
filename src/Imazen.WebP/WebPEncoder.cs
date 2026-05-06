@@ -22,11 +22,17 @@ namespace Imazen.WebP
         {
             int size = (int)(uint)dataSize;
             if (size <= 0) return 1;
-            byte[] buffer = new byte[size];
-            Marshal.Copy(data, buffer, 0, size);
             var handle = GCHandle.FromIntPtr(picture.custom_ptr);
             var ctx = (EncodeOutput)handle.Target!;
+#if NETCOREAPP
+            unsafe {
+                ctx.Stream.Write(new ReadOnlySpan<byte>((void*)data, size));
+            }
+#else
+            byte[] buffer = new byte[size];
+            Marshal.Copy(data, buffer, 0, size);
             ctx.Stream.Write(buffer, 0, size);
+#endif
             return 1;
         }
 
