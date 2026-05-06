@@ -11,11 +11,11 @@ namespace Imazen.WebP
     public static class WebPEncoder
     {
         // Prevent delegate from being GC'd during encoding
-        [ThreadStatic] private static WebPWriterFunction? _writerDelegate;
+        private static readonly WebPWriterFunction _writerDelegate = ManagedWriter;
 
-        private class EncodeOutput
+        private sealed class EncodeOutput(Stream stream)
         {
-            public MemoryStream Stream = new MemoryStream();
+            public Stream Stream = stream;
         }
 
         private static int ManagedWriter(IntPtr data, UIntPtr dataSize, ref WebPPicture picture)
@@ -170,10 +170,22 @@ namespace Imazen.WebP
         public static byte[] Encode(byte[] pixels, int width, int height, int stride,
             WebPPixelFormat format, WebPEncoderConfig config)
         {
+            var outputStream = new MemoryStream();
+            Encode(pixels, width, height, stride, format, config, outputStream);
+            return outputStream.ToArray();
+        }
+
+        /// <summary>
+        /// Encodes raw pixel data using advanced WebPEncoderConfig settings and writes to a stream.
+        /// </summary>
+        public static void Encode(byte[] pixels, int width, int height, int stride,
+            WebPPixelFormat format, WebPEncoderConfig config, Stream outputStream)
+        {
             if (pixels == null) throw new ArgumentNullException(nameof(pixels));
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
             if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+            if (outputStream == null) throw new ArgumentNullException(nameof(outputStream));
 
             if (!config.Validate())
                 throw new ArgumentException("Invalid WebP encoder configuration", nameof(config));
@@ -193,10 +205,8 @@ namespace Imazen.WebP
             picture.use_argb = 1;
 
             var pixelHandle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
-            var output = new EncodeOutput();
+            var output = new EncodeOutput(outputStream);
             var outputHandle = GCHandle.Alloc(output);
-            // Keep delegate alive during encoding
-            _writerDelegate = ManagedWriter;
             try
             {
                 IntPtr pixelPtr = pixelHandle.AddrOfPinnedObject();
@@ -233,8 +243,6 @@ namespace Imazen.WebP
 
                 if (encodeResult == 0)
                     throw new Exception($"WebP encode failed with error: {picture.error_code}");
-
-                return output.Stream.ToArray();
             }
             finally
             {
@@ -245,19 +253,7 @@ namespace Imazen.WebP
                 });
                 pixelHandle.Free();
                 outputHandle.Free();
-                _writerDelegate = null;
             }
-        }
-
-        /// <summary>
-        /// Encodes raw pixel data using advanced WebPEncoderConfig settings and writes to a stream.
-        /// </summary>
-        public static void Encode(byte[] pixels, int width, int height, int stride,
-            WebPPixelFormat format, WebPEncoderConfig config, Stream outputStream)
-        {
-            if (outputStream == null) throw new ArgumentNullException(nameof(outputStream));
-            byte[] encoded = Encode(pixels, width, height, stride, format, config);
-            outputStream.Write(encoded, 0, encoded.Length);
         }
     }
 }
