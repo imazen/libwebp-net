@@ -15,7 +15,7 @@ namespace Imazen.WebP
 
         private sealed class EncodeOutput(Stream stream)
         {
-            public Stream Stream = stream;
+            public readonly Stream Stream = stream;
         }
 
         private static int ManagedWriter(IntPtr data, UIntPtr dataSize, ref WebPPicture picture)
