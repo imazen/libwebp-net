@@ -127,10 +127,21 @@ namespace Imazen.WebP
         }
 
         /// <summary>
-        /// Creates an animation decoder from a stream.
+        /// Creates an animation decoder from a stream. Reads the entire stream
+        /// into memory first, capped by
+        /// <see cref="WebPLimits.MaxDecodeStreamBytes"/>.
         /// </summary>
         public AnimDecoder(Stream stream, bool useThreads = false)
-            : this(ReadStreamFully(stream), useThreads)
+            : this(ReadStreamFully(stream, WebPLimits.MaxDecodeStreamBytes), useThreads)
+        {
+        }
+
+        /// <summary>
+        /// Creates an animation decoder from a stream with a caller-supplied
+        /// buffered-data cap.
+        /// </summary>
+        public AnimDecoder(Stream stream, long maxBytes, bool useThreads = false)
+            : this(ReadStreamFully(stream, maxBytes), useThreads)
         {
         }
 
@@ -225,17 +236,30 @@ namespace Imazen.WebP
             if (_disposed) throw new ObjectDisposedException(nameof(AnimDecoder));
         }
 
-        private static byte[] ReadStreamFully(Stream stream)
+        private static byte[] ReadStreamFully(Stream stream, long maxBytes)
         {
             if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (maxBytes <= 0) throw new ArgumentOutOfRangeException(nameof(maxBytes));
             if (stream is MemoryStream ms && ms.Position == 0)
+            {
+                if (ms.Length > maxBytes)
+                    throw new InvalidDataException(
+                        $"Encoded WebP data {ms.Length} bytes exceeds cap of {maxBytes} bytes.");
                 return ms.ToArray();
+            }
             using (var output = new MemoryStream())
             {
                 byte[] buffer = new byte[8192];
+                long total = 0;
                 int read;
                 while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    total += read;
+                    if (total > maxBytes)
+                        throw new InvalidDataException(
+                            $"Encoded WebP data exceeds cap of {maxBytes} bytes.");
                     output.Write(buffer, 0, read);
+                }
                 return output.ToArray();
             }
         }
