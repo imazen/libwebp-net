@@ -491,10 +491,38 @@ namespace Imazen.WebP
             SetLastError = true)]
         private static extern IntPtr LoadLibraryEx(string fileName, IntPtr reservedNull, uint flags);
 
+        // Safe-search flags (Windows 7 SP1+KB2533623 and later — universally
+        // available on supported Windows today). These restrict dependency
+        // resolution to the DLL's own directory plus System32 plus the
+        // user-added directories. They explicitly exclude the legacy unsafe
+        // search order (current working directory, %PATH%, etc.) that
+        // LOAD_WITH_ALTERED_SEARCH_PATH leaves enabled for transitive
+        // dependencies.
+        private const uint LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100;
+        private const uint LOAD_LIBRARY_SEARCH_USER_DIRS    = 0x00000400;
+        private const uint LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800;
+        private const uint LOAD_WITH_ALTERED_SEARCH_PATH    = 0x00000008;
+
         public static IntPtr Execute(string fileName)
         {
-            const uint loadWithAlteredSearchPath = 0x00000008;
-            return LoadLibraryEx(fileName, IntPtr.Zero, loadWithAlteredSearchPath);
+            const uint safeSearch =
+                LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
+                LOAD_LIBRARY_SEARCH_USER_DIRS |
+                LOAD_LIBRARY_SEARCH_SYSTEM32;
+
+            IntPtr handle = LoadLibraryEx(fileName, IntPtr.Zero, safeSearch);
+            if (handle != IntPtr.Zero) return handle;
+
+            // ERROR_INVALID_PARAMETER (87) on very old Windows without the
+            // KB2533623 update — fall back to the legacy flag rather than
+            // failing outright. Any other error (file not found, image
+            // format, etc.) propagates the original error code.
+            int err = Marshal.GetLastWin32Error();
+            if (err == 87)
+            {
+                handle = LoadLibraryEx(fileName, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
+            }
+            return handle;
         }
     }
 
