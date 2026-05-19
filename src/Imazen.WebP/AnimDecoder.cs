@@ -54,41 +54,76 @@ namespace Imazen.WebP
             if (webpData == null) throw new ArgumentNullException(nameof(webpData));
 
             _dataHandle = GCHandle.Alloc(webpData, GCHandleType.Pinned);
-            var data = new WebPData
+            try
             {
-                bytes = _dataHandle.AddrOfPinnedObject(),
-                size = (UIntPtr)webpData.Length
-            };
+                var data = new WebPData
+                {
+                    bytes = _dataHandle.AddrOfPinnedObject(),
+                    size = (UIntPtr)webpData.Length
+                };
 
-            var options = new WebPAnimDecoderOptions();
-            NativeLibraryLoader.FixDllNotFoundException("webpdemux", () =>
+                var options = new WebPAnimDecoderOptions();
+                NativeLibraryLoader.FixDllNotFoundException("webpdemux", () =>
+                {
+                    if (NativeMethods.WebPAnimDecoderOptionsInit(ref options) == 0)
+                        throw new Exception("Failed to initialize animation decoder options (version mismatch)");
+                    return 0;
+                });
+                options.color_mode = WEBP_CSP_MODE.MODE_BGRA;
+                options.use_threads = useThreads ? 1 : 0;
+
+                _decoder = NativeLibraryLoader.FixDllNotFoundException("webpdemux",
+                    () => NativeMethods.WebPAnimDecoderNew(ref data, ref options));
+
+                if (_decoder == IntPtr.Zero)
+                    throw new InvalidDataException("Failed to create animation decoder. Data may not be a valid animated WebP.");
+
+                var animInfo = new WebPAnimInfo();
+                int infoResult = NativeLibraryLoader.FixDllNotFoundException("webpdemux",
+                    () => NativeMethods.WebPAnimDecoderGetInfo(_decoder, ref animInfo));
+
+                if (infoResult == 0)
+                    throw new InvalidDataException("Failed to get animation info");
+
+                // libwebp's canvas_{width,height} are uint32. Reject anything
+                // outside the spec cap so subsequent `width * height * 4`
+                // multiplications cannot overflow int32 silently.
+                if (animInfo.canvas_width == 0 || animInfo.canvas_height == 0 ||
+                    animInfo.canvas_width > NativeMethods.WEBP_MAX_DIMENSION ||
+                    animInfo.canvas_height > NativeMethods.WEBP_MAX_DIMENSION)
+                {
+                    throw new InvalidDataException(
+                        $"Animation canvas dimensions out of range: {animInfo.canvas_width}x{animInfo.canvas_height}");
+                }
+
+                _info = new AnimInfo(
+                    (int)animInfo.canvas_width,
+                    (int)animInfo.canvas_height,
+                    (int)animInfo.frame_count,
+                    (int)animInfo.loop_count,
+                    animInfo.bgcolor);
+            }
+            catch
             {
-                if (NativeMethods.WebPAnimDecoderOptionsInit(ref options) == 0)
-                    throw new Exception("Failed to initialize animation decoder options (version mismatch)");
-                return 0;
-            });
-            options.color_mode = WEBP_CSP_MODE.MODE_BGRA;
-            options.use_threads = useThreads ? 1 : 0;
-
-            _decoder = NativeLibraryLoader.FixDllNotFoundException("webpdemux",
-                () => NativeMethods.WebPAnimDecoderNew(ref data, ref options));
-
-            if (_decoder == IntPtr.Zero)
-                throw new Exception("Failed to create animation decoder. Data may not be a valid animated WebP.");
-
-            var animInfo = new WebPAnimInfo();
-            int infoResult = NativeLibraryLoader.FixDllNotFoundException("webpdemux",
-                () => NativeMethods.WebPAnimDecoderGetInfo(_decoder, ref animInfo));
-
-            if (infoResult == 0)
-                throw new Exception("Failed to get animation info");
-
-            _info = new AnimInfo(
-                (int)animInfo.canvas_width,
-                (int)animInfo.canvas_height,
-                (int)animInfo.frame_count,
-                (int)animInfo.loop_count,
-                animInfo.bgcolor);
+                // Constructor exception: clean up native + pinned-handle
+                // resources before propagating, so the GC won't pin webpData
+                // forever and the native decoder won't leak.
+                if (_decoder != IntPtr.Zero)
+                {
+                    try
+                    {
+                        NativeMethods.WebPAnimDecoderDelete(_decoder);
+                    }
+                    catch
+                    {
+                        // best-effort
+                    }
+                    _decoder = IntPtr.Zero;
+                }
+                if (_dataHandle.IsAllocated)
+                    _dataHandle.Free();
+                throw;
+            }
         }
 
         /// <summary>
@@ -140,7 +175,14 @@ namespace Imazen.WebP
 
             if (result == 0) return null;
 
-            int canvasSize = _info.Width * _info.Height * 4;
+            // Width/Height are validated in the constructor to be in
+            // (0, WEBP_MAX_DIMENSION], so canvasSize <= 16383*16383*4 fits
+            // in int32 by an order of magnitude. The long widening here is
+            // defense-in-depth in case the constraint is ever relaxed.
+            long canvasSizeL = (long)_info.Width * _info.Height * 4;
+            if (canvasSizeL <= 0 || canvasSizeL > int.MaxValue)
+                throw new InvalidDataException($"Frame size overflow: {canvasSizeL}");
+            int canvasSize = (int)canvasSizeL;
             byte[] pixels = new byte[canvasSize];
             Marshal.Copy(buf, pixels, 0, canvasSize);
 
@@ -200,22 +242,40 @@ namespace Imazen.WebP
 
         public void Dispose()
         {
-            if (!_disposed)
-            {
-                if (_decoder != IntPtr.Zero)
-                {
-                    NativeLibraryLoader.FixDllNotFoundException("webpdemux", () =>
-                    {
-                        NativeMethods.WebPAnimDecoderDelete(_decoder);
-                        return 0;
-                    });
-                    _decoder = IntPtr.Zero;
-                }
-                if (_dataHandle.IsAllocated)
-                    _dataHandle.Free();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-                _disposed = true;
+        ~AnimDecoder()
+        {
+            Dispose(false);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (_decoder != IntPtr.Zero)
+            {
+                // Finalizer path: don't go through FixDllNotFoundException —
+                // it can take locks and call back into managed code, which
+                // is unsafe from a finalizer thread. The native library is
+                // already loaded by this point (the decoder handle came
+                // from it), so a direct call is fine.
+                try
+                {
+                    NativeMethods.WebPAnimDecoderDelete(_decoder);
+                }
+                catch
+                {
+                    // best-effort
+                }
+                _decoder = IntPtr.Zero;
             }
+            if (_dataHandle.IsAllocated)
+                _dataHandle.Free();
+
+            _disposed = true;
         }
     }
 }
