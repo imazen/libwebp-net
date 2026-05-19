@@ -27,8 +27,10 @@ namespace Imazen.WebP
         /// <param name="height">Canvas height in pixels.</param>
         public AnimEncoder(int width, int height)
         {
-            if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
-            if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+            if (width <= 0 || width > NativeMethods.WEBP_MAX_DIMENSION)
+                throw new ArgumentOutOfRangeException(nameof(width));
+            if (height <= 0 || height > NativeMethods.WEBP_MAX_DIMENSION)
+                throw new ArgumentOutOfRangeException(nameof(height));
 
             _width = width;
             _height = height;
@@ -60,8 +62,10 @@ namespace Imazen.WebP
         public AnimEncoder(int width, int height, int loopCount = 0, uint backgroundColor = 0,
             bool allowMixed = false, bool minimizeSize = false)
         {
-            if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
-            if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+            if (width <= 0 || width > NativeMethods.WEBP_MAX_DIMENSION)
+                throw new ArgumentOutOfRangeException(nameof(width));
+            if (height <= 0 || height > NativeMethods.WEBP_MAX_DIMENSION)
+                throw new ArgumentOutOfRangeException(nameof(height));
 
             _width = width;
             _height = height;
@@ -98,6 +102,20 @@ namespace Imazen.WebP
             AddFrameInternal(bgraPixels, _width * 4, WebPPixelFormat.Bgra, timestampMs, quality);
         }
 
+        private void ValidateFrame(byte[] pixels, int stride, WebPPixelFormat format)
+        {
+            int bytesPerPixel = (format == WebPPixelFormat.Rgb || format == WebPPixelFormat.Bgr) ? 3 : 4;
+            long minStride = (long)_width * bytesPerPixel;
+            if (stride < minStride)
+                throw new ArgumentOutOfRangeException(nameof(stride),
+                    $"stride {stride} is smaller than width*bytesPerPixel ({minStride}).");
+            long needed = (long)stride * _height;
+            if (pixels.Length < needed)
+                throw new ArgumentException(
+                    $"pixels.Length {pixels.Length} is smaller than stride*height ({needed}).",
+                    nameof(pixels));
+        }
+
         /// <summary>
         /// Adds a frame of raw pixel data at the given timestamp.
         /// </summary>
@@ -120,6 +138,7 @@ namespace Imazen.WebP
             if (pixels == null) throw new ArgumentNullException(nameof(pixels));
             if (config == null) throw new ArgumentNullException(nameof(config));
             ThrowIfDisposed();
+            ValidateFrame(pixels, stride, format);
 
             if (!config.Validate())
                 throw new ArgumentException("Invalid encoder configuration", nameof(config));
@@ -131,6 +150,7 @@ namespace Imazen.WebP
         private void AddFrameInternal(byte[] pixels, int stride, WebPPixelFormat format, int timestampMs, float quality)
         {
             ThrowIfDisposed();
+            ValidateFrame(pixels, stride, format);
 
             var config = new WebPConfig();
             NativeLibraryLoader.FixDllNotFoundException("webp", () =>
@@ -251,7 +271,11 @@ namespace Imazen.WebP
             }
 
             // Copy to managed array (data is owned by encoder, freed on delete)
-            int size = (int)(ulong)webpData.size;
+            ulong sizeU = (ulong)webpData.size;
+            if (sizeU > int.MaxValue)
+                throw new InvalidOperationException(
+                    $"Animation assembly produced {sizeU} bytes — exceeds int.MaxValue and cannot be returned as a byte[].");
+            int size = (int)sizeU;
             byte[] output = new byte[size];
             Marshal.Copy(webpData.bytes, output, 0, size);
 
@@ -275,16 +299,36 @@ namespace Imazen.WebP
 
         public void Dispose()
         {
-            if (!_disposed && _encoder != IntPtr.Zero)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~AnimEncoder()
+        {
+            Dispose(false);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (_encoder != IntPtr.Zero)
             {
-                NativeLibraryLoader.FixDllNotFoundException("webpmux", () =>
+                // Direct native call rather than via FixDllNotFoundException —
+                // the library is already loaded (encoder handle came from it)
+                // and finalizer threads must not call back through code that
+                // takes locks.
+                try
                 {
                     NativeMethods.WebPAnimEncoderDelete(_encoder);
-                    return 0;
-                });
+                }
+                catch
+                {
+                    // best-effort
+                }
                 _encoder = IntPtr.Zero;
-                _disposed = true;
             }
+            _disposed = true;
         }
     }
 }
