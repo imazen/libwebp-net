@@ -52,6 +52,7 @@ namespace Imazen.WebP
             if (pixels == null) throw new ArgumentNullException(nameof(pixels));
             if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
             if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+            ValidatePixelBuffer(pixels, width, height, stride, format);
 
             var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
             try
@@ -75,7 +76,11 @@ namespace Imazen.WebP
 
                 try
                 {
-                    byte[] output = new byte[(int)(ulong)length];
+                    ulong len = (ulong)length;
+                    if (len > int.MaxValue)
+                        throw new InvalidOperationException(
+                            $"libwebp produced {len} bytes — exceeds int.MaxValue and cannot be returned as a byte[].");
+                    byte[] output = new byte[(int)len];
                     Marshal.Copy(result, output, 0, output.Length);
                     return output;
                 }
@@ -192,6 +197,7 @@ namespace Imazen.WebP
             if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
             if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
             if (outputStream == null) throw new ArgumentNullException(nameof(outputStream));
+            ValidatePixelBuffer(pixels, width, height, stride, format);
 
             if (!config.Validate())
                 throw new ArgumentException("Invalid WebP encoder configuration", nameof(config));
@@ -260,6 +266,32 @@ namespace Imazen.WebP
                 pixelHandle.Free();
                 outputHandle.Free();
             }
+        }
+
+        // Guards libwebp against an out-of-bounds read into the managed heap.
+        // libwebp reads stride * height bytes from the pinned pointer; the
+        // managed buffer must be at least that large. We also enforce the
+        // libwebp dimension cap so width*height won't silently wrap.
+        private static void ValidatePixelBuffer(byte[] pixels, int width, int height, int stride, WebPPixelFormat format)
+        {
+            if (width > NativeMethods.WEBP_MAX_DIMENSION || height > NativeMethods.WEBP_MAX_DIMENSION)
+                throw new ArgumentOutOfRangeException(nameof(width),
+                    $"width/height must be <= {NativeMethods.WEBP_MAX_DIMENSION}; got {width}x{height}.");
+
+            int bytesPerPixel = (format == WebPPixelFormat.Rgb || format == WebPPixelFormat.Bgr) ? 3 : 4;
+            long minStride = (long)width * bytesPerPixel;
+            // libwebp accepts negative strides only for bottom-up bitmaps in
+            // some entry points; we don't expose those entry points and require
+            // a positive stride large enough for one row.
+            if (stride < minStride)
+                throw new ArgumentOutOfRangeException(nameof(stride),
+                    $"stride {stride} is smaller than width*bytesPerPixel ({minStride}).");
+
+            long needed = (long)stride * height;
+            if (pixels.Length < needed)
+                throw new ArgumentException(
+                    $"pixels.Length {pixels.Length} is smaller than stride*height ({needed}).",
+                    nameof(pixels));
         }
     }
 }
