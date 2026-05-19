@@ -22,3 +22,4 @@ src/Imazen.WebP.NativeRuntime.*/runtimes/*/native/*.dylib
 .vs/
 .idea/
 *.DotSettings.user
+.workongoing

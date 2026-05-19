@@ -100,21 +100,28 @@ jobs:
       - name: Determine native release tag
         id: native
         shell: bash
+        env:
+          INPUT_NATIVE_RELEASE_TAG: ${{ inputs.native_release_tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "${{ inputs.native_release_tag }}" ]; then
-            echo "tag=${{ inputs.native_release_tag }}" >> "$GITHUB_OUTPUT"
+          if [ -n "$INPUT_NATIVE_RELEASE_TAG" ]; then
+            TAG="$INPUT_NATIVE_RELEASE_TAG"
           else
             # Find the latest native-v* release
-            TAG=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/releases" | \
+            TAG=$(curl -sL -H "Authorization: token $GH_TOKEN" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases" | \
               jq -r '[.[] | select(.tag_name | startswith("native-v"))][0].tag_name // empty')
             if [ -z "$TAG" ]; then
               echo "::error::No native release found. Run build-libwebp.yml first."
               exit 1
-            else
-              echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
             fi
           fi
+          # Validate: must be native-v<semver>
+          if ! [[ "$TAG" =~ ^native-v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "::error::Refusing unexpected native release tag: $TAG"
+            exit 1
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Download native binaries from GitHub release
         shell: bash
@@ -301,19 +308,26 @@ jobs:
       - name: Determine native release tag
         id: native
         shell: bash
+        env:
+          INPUT_NATIVE_RELEASE_TAG: ${{ inputs.native_release_tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "${{ inputs.native_release_tag }}" ]; then
-            echo "tag=${{ inputs.native_release_tag }}" >> "$GITHUB_OUTPUT"
+          if [ -n "$INPUT_NATIVE_RELEASE_TAG" ]; then
+            TAG="$INPUT_NATIVE_RELEASE_TAG"
           else
-            TAG=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/releases" | \
+            TAG=$(curl -sL -H "Authorization: token $GH_TOKEN" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases" | \
               jq -r '[.[] | select(.tag_name | startswith("native-v"))][0].tag_name // empty')
             if [ -z "$TAG" ]; then
               echo "::error::No native release found. Run build-libwebp.yml first."
               exit 1
             fi
-            echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           fi
+          if ! [[ "$TAG" =~ ^native-v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "::error::Refusing unexpected native release tag: $TAG"
+            exit 1
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Download native binaries
         shell: bash
@@ -401,34 +415,50 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NATIVE_RELEASE_TAG: ${{ inputs.native_release_tag }}
         run: |
           # Use input if provided, otherwise find the latest native release
-          if [ -n "${{ inputs.native_release_tag }}" ]; then
-            echo "tag=${{ inputs.native_release_tag }}" >> "$GITHUB_OUTPUT"
+          if [ -n "$INPUT_NATIVE_RELEASE_TAG" ]; then
+            TAG="$INPUT_NATIVE_RELEASE_TAG"
           else
             TAG=$(curl -sL -H "Authorization: token $GH_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository }}/releases" | \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases" | \
               jq -r '[.[] | select(.tag_name | startswith("native-v"))][0].tag_name // empty')
-            echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           fi
+          if [ -n "$TAG" ] && ! [[ "$TAG" =~ ^native-v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "::error::Refusing unexpected native release tag: $TAG"
+            exit 1
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Determine versions
         id: versions
         shell: bash
+        env:
+          INPUT_LIBWEBP_VERSION: ${{ inputs.libwebp_version }}
+          NATIVE_TAG: ${{ steps.native.outputs.tag }}
         run: |
           # Managed API version from git tag (release event) or Directory.Build.props
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             API_VERSION="${GITHUB_REF#refs/tags/v}"
           else
             API_VERSION=""
           fi
+          # Validate semver-ish (digits and dots, optional pre-release/build).
+          if [ -n "$API_VERSION" ] && ! [[ "$API_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "::error::Refusing unexpected API_VERSION: $API_VERSION"
+            exit 1
+          fi
           echo "api_version=${API_VERSION}" >> "$GITHUB_OUTPUT"
 
           # Native package version from input or from the native release tag
-          NATIVE_VERSION="${{ inputs.libwebp_version }}"
-          if [ -z "$NATIVE_VERSION" ] && [ -n "${{ steps.native.outputs.tag }}" ]; then
-            NATIVE_VERSION="${{ steps.native.outputs.tag }}"
-            NATIVE_VERSION="${NATIVE_VERSION#native-v}"
+          NATIVE_VERSION="$INPUT_LIBWEBP_VERSION"
+          if [ -z "$NATIVE_VERSION" ] && [ -n "$NATIVE_TAG" ]; then
+            NATIVE_VERSION="${NATIVE_TAG#native-v}"
+          fi
+          if [ -n "$NATIVE_VERSION" ] && ! [[ "$NATIVE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "::error::Refusing unexpected NATIVE_VERSION: $NATIVE_VERSION"
+            exit 1
           fi
           echo "native_version=${NATIVE_VERSION}" >> "$GITHUB_OUTPUT"
 

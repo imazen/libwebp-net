@@ -31,10 +31,12 @@ jobs:
     steps:
       - name: Resolve libwebp version
         id: resolve
+        env:
+          INPUT_LIBWEBP_TAG: ${{ inputs.libwebp_tag }}
         run: |
-          if [ -n "${{ inputs.libwebp_tag }}" ]; then
-            TAG="${{ inputs.libwebp_tag }}"
-          elif [[ "${{ github.ref }}" == refs/tags/native-v* ]]; then
+          if [ -n "$INPUT_LIBWEBP_TAG" ]; then
+            TAG="$INPUT_LIBWEBP_TAG"
+          elif [[ "$GITHUB_REF" == refs/tags/native-v* ]]; then
             TAG="v${GITHUB_REF#refs/tags/native-v}"
           else
             # Fetch latest release tag from webmproject/libwebp
@@ -42,6 +44,12 @@ jobs:
             if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then
               TAG="${LIBWEBP_DEFAULT_TAG}"
             fi
+          fi
+          # Validate: must look like a libwebp version tag to prevent shell-meta-character
+          # propagation into downstream steps.
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "::error::Refusing unexpected libwebp tag format: $TAG"
+            exit 1
           fi
           SEMVER="${TAG#v}"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
@@ -110,8 +118,16 @@ jobs:
 
       - name: Clone libwebp source
         shell: bash
+        env:
+          LIBWEBP_TAG: ${{ needs.resolve-version.outputs.libwebp_tag }}
         run: |
-          git clone --depth 1 --branch ${{ needs.resolve-version.outputs.libwebp_tag }} \
+          # Validate again — defense in depth, also catches anything that
+          # flows in via outputs from an earlier (possibly tampered) step.
+          if ! [[ "$LIBWEBP_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "::error::Refusing unexpected libwebp tag: $LIBWEBP_TAG"
+            exit 1
+          fi
+          git clone --depth 1 --branch "$LIBWEBP_TAG" \
             https://github.com/webmproject/libwebp.git libwebp-src
 
       - name: Build libwebp (Windows)
@@ -343,8 +359,9 @@ jobs:
 
       - name: Prepare release assets
         id: tag
+        env:
+          SEMVER: ${{ needs.resolve-version.outputs.libwebp_semver }}
         run: |
-          SEMVER="${{ needs.resolve-version.outputs.libwebp_semver }}"
           RELEASE_TAG="native-v${SEMVER}"
           echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
 
@@ -361,10 +378,10 @@ jobs:
       - name: Create GitHub Release with native binaries
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEMVER: ${{ needs.resolve-version.outputs.libwebp_semver }}
+          LIBWEBP_TAG: ${{ needs.resolve-version.outputs.libwebp_tag }}
         run: |
-          SEMVER="${{ needs.resolve-version.outputs.libwebp_semver }}"
           RELEASE_TAG="native-v${SEMVER}"
-          LIBWEBP_TAG="${{ needs.resolve-version.outputs.libwebp_tag }}"
 
           NOTES=$(cat <<NOTES_EOF
           Pre-built native libwebp ${SEMVER} shared libraries for all supported platforms.
@@ -398,9 +415,11 @@ jobs:
       - name: Trigger .NET build, test, and NuGet publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEMVER: ${{ needs.resolve-version.outputs.libwebp_semver }}
+          RELEASE_TAG: ${{ needs.create-release.outputs.release_tag }}
         run: |
           gh workflow run dotnet.yml \
             --repo "${{ github.repository }}" \
-            -f libwebp_version="${{ needs.resolve-version.outputs.libwebp_semver }}" \
-            -f native_release_tag="${{ needs.create-release.outputs.release_tag }}"
-          echo "Triggered dotnet.yml with libwebp_version=${{ needs.resolve-version.outputs.libwebp_semver }}, native_release_tag=${{ needs.create-release.outputs.release_tag }}"
+            -f libwebp_version="$SEMVER" \
+            -f native_release_tag="$RELEASE_TAG"
+          echo "Triggered dotnet.yml with libwebp_version=$SEMVER, native_release_tag=$RELEASE_TAG"
