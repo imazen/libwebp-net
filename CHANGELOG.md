@@ -15,6 +15,6 @@ described in the [GitHub releases](https://github.com/imazen/libwebp-net/release
 - Test project: Microsoft.NET.Test.Sdk 18.10.1, System.Drawing.Common 10.0.12 (6cd2528).
 - CI: checkout v7, setup-dotnet v6, upload-artifact v7, download-artifact v8, upload-pages-artifact v5, deploy-pages v5 (4d660bc).
 
-### Known Bugs
+### Fixed
 
-- `WebPEncoderConfig`'s constructors and `Validate()` call `WebPConfigInit` / `WebPValidateConfig` without `NativeLibraryLoader.FixDllNotFoundException`, so on .NET Framework the first such call throws `DllNotFoundException` when libwebp is only under `runtimes/<rid>/native` and nothing else has loaded it yet. In CI this shows up as order-dependent failures in the net472/net48 runs.
+- `WebPEncoderConfig` (constructors, `SetLosslessPreset`, `Validate`) and `AbiVersionCheck.ValidateOrThrow` load libwebp through `NativeLibraryLoader` like the rest of the library; on .NET Framework they could throw `DllNotFoundException` when they were the first libwebp call and the DLL sat only under `runtimes/<rid>/native` (a792585).
