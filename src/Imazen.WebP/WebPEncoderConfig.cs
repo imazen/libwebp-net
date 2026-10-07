@@ -18,7 +18,8 @@ namespace Imazen.WebP
         public WebPEncoderConfig()
         {
             _config = new WebPConfig();
-            if (NativeMethods.WebPConfigInit(ref _config) == 0)
+            if (NativeLibraryLoader.FixDllNotFoundException("webp",
+                    () => NativeMethods.WebPConfigInit(ref _config)) == 0)
                 throw new Exception("WebP version mismatch: failed to initialize config");
             _initialized = true;
         }
@@ -29,7 +30,8 @@ namespace Imazen.WebP
         public WebPEncoderConfig(WebPPreset preset, float quality)
         {
             _config = new WebPConfig();
-            if (NativeMethods.WebPConfigPreset(ref _config, preset, quality) == 0)
+            if (NativeLibraryLoader.FixDllNotFoundException("webp",
+                    () => NativeMethods.WebPConfigPreset(ref _config, preset, quality)) == 0)
                 throw new Exception("WebP version mismatch: failed to initialize config with preset");
             _initialized = true;
         }
@@ -62,7 +64,8 @@ namespace Imazen.WebP
         {
             EnsureInitialized();
             _config.lossless = 1;
-            NativeMethods.WebPConfigLosslessPreset(ref _config, level);
+            NativeLibraryLoader.FixDllNotFoundException("webp",
+                () => NativeMethods.WebPConfigLosslessPreset(ref _config, level));
             return this;
         }
 
@@ -182,7 +185,8 @@ namespace Imazen.WebP
         public bool Validate()
         {
             EnsureInitialized();
-            return NativeMethods.WebPValidateConfig(ref _config) != 0;
+            return NativeLibraryLoader.FixDllNotFoundException("webp",
+                () => NativeMethods.WebPValidateConfig(ref _config)) != 0;
         }
 
         /// <summary>

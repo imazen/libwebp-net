@@ -18,7 +18,10 @@ namespace Imazen.WebP
         {
             if (_validated) return;
 
-            int decoderVer = NativeMethods.WebPGetDecoderVersion();
+            // Wrapped: this is public and can be a caller's first native call. When the
+            // loader calls it right after loading libwebp, the first attempt succeeds.
+            int decoderVer = NativeLibraryLoader.FixDllNotFoundException("webp",
+                () => NativeMethods.WebPGetDecoderVersion());
             int encoderVer = NativeMethods.WebPGetEncoderVersion();
 
             int decMajor = (decoderVer >> 16) & 0xFF;
