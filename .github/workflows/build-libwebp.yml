@@ -114,7 +114,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout libwebp-net
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Clone libwebp source
         shell: bash
@@ -277,7 +277,7 @@ jobs:
 
       - name: Upload ABI metadata
         if: matrix.rid != 'win-x86'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: abi-metadata-${{ matrix.rid }}
           path: artifacts/abi-metadata-*.json
@@ -285,7 +285,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload native artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: native-${{ matrix.rid }}
           path: src/Imazen.WebP.NativeRuntime.${{ matrix.rid }}/runtimes/${{ matrix.rid }}/native/
@@ -299,7 +299,7 @@ jobs:
       release_tag: ${{ steps.tag.outputs.release_tag }}
     steps:
       - name: Download all native artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
 
